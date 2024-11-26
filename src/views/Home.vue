@@ -35,41 +35,35 @@ const containerWidth = computed(() => ({
       <!-- 侧边栏使用了固定定位 (position: fixed;)，overflow-y: auto; 可确保侧边栏内容超视窗高度时能滚动 -->
       <el-aside :width="asideWidth" style="height: 100% ;background-color:#3d495c;position: fixed;overflow-y: auto;">
         <div
-          style="height: 60px;line-height: 60px; color:white;display: flex;align-items: center;justify-content: center">
+            style="height: 60px;line-height: 60px; color:white;display: flex;align-items: center;justify-content: center">
           <img src="@/assets/gyroscope.png" alt="" style="width: 40px;height: 40px">
           <span class="logo-title" v-show="!isCollapse">ESI知识图谱平台</span>
         </div>
         <!-- collapse指是否折叠 router作用为可点击菜单里按钮然后跳转页面 :default-active="$route.path是指点哪个菜单哪个高亮，注意只对一级菜单生效 -->
         <el-menu :collapse="isCollapse" :collapse-transition="false" router style="border: none"
-          :default-active="route.path" background-color="#3d495c" text-color="rgba(255,255,255,0.65)"
-          active-text-color="#fff">
+                 :default-active="route.path" background-color="#3d495c" text-color="rgba(255,255,255,0.65)"
+                 active-text-color="#fff">
           <!-- 一级菜单 index指路由 -->
           <el-menu-item index="/search">
             <el-icon>
-              <SearchIcon />
+              <SearchIcon/>
             </el-icon>
             <span slot="title"> 平台搜索</span></el-menu-item>
           <el-menu-item index="/area">
             <el-icon>
-              <Guide />
+              <Guide/>
             </el-icon>
             <span slot="title"> 研究领域</span></el-menu-item>
           <el-menu-item index="/expert">
             <el-icon>
-              <User />
+              <User/>
             </el-icon>
             <span slot="title"> 学术专家</span></el-menu-item>
           <el-menu-item index="/institution">
             <el-icon>
-              <OfficeBuilding />
+              <OfficeBuilding/>
             </el-icon>
             <span slot="title"> 机构信息</span>
-          </el-menu-item>
-          <el-menu-item index="/algorithm">
-            <el-icon>
-              <OfficeBuilding />
-            </el-icon>
-            <span slot="title"> 算法消歧</span>
           </el-menu-item>
           <!-- 二级菜单 -->
           <!-- <el-submenu>
@@ -86,10 +80,10 @@ const containerWidth = computed(() => ({
         <!-- 头部区域 -->
         <el-header>
           <el-icon v-if="isCollapse" style="font-size: 22px" @click="handleCollapse">
-            <Expand />
+            <Expand/>
           </el-icon>
           <el-icon v-else style="font-size: 22px" @click="handleCollapse">
-            <Fold />
+            <Fold/>
           </el-icon>
           <!-- 面包屑，应该就是头部的那几个局部排版 -->
           <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-left: 10px">
@@ -104,7 +98,7 @@ const containerWidth = computed(() => ({
 
         <!-- 主体区域，使用了<router-view/>，然后在index.js里写相关的children然后附上地址即可 -->
         <el-main>
-          <router-view />
+          <router-view/>
         </el-main>
 
         <!-- 页尾  -->

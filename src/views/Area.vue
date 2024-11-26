@@ -94,7 +94,7 @@
           </transition>
           <!-- 此处用于展示论文知识图谱 -->
           <transition name="panel">
-            <div style="height:calc(100vh);">
+            <div style="width:500px;height:calc(100vh);">
               <RelationGraph ref="graphRef" :options="graphOptions" @node-click="onNodeClick"
                              @line-click="onLineClick"/>
             </div>
