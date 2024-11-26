@@ -1,0 +1,122 @@
+{
+  "nodes": [
+    {
+      "id": "0",
+      "text": "Emily Davis",
+      "color": "red",
+      "data": {
+        "id": "2593414af39140c0b87d03841ffec3d61",
+        "description": "An author with combinations of co-authors.",
+        "name": "Emily Davis",
+        "type": "AUTHOR"
+      }
+    },
+    {
+      "id": "1",
+      "text": "John Smith",
+      "data": {
+        "id": "28404712e2ae4abc8fe660eb089796a41",
+        "description": "A co-author of research with Emily Davis.",
+        "name": "John Smith",
+        "type": "AUTHOR"
+      }
+    },
+    {
+      "id": "2",
+      "text": "Alice Johnson",
+      "data": {
+        "id": "1f49e17d1d3f4b2b84d8c96d0fca4a561",
+        "description": "A co-author of research with Emily Davis.",
+        "name": "Alice Johnson",
+        "type": "AUTHOR"
+      }
+    },
+    {
+      "id": "3",
+      "text": "Michael Brown",
+      "data": {
+        "id": "2c9dbd7c7e6f4f7d9538d3a8c84fffb31",
+        "description": "A co-author of research with Emily Davis.",
+        "name": "Michael Brown",
+        "type": "AUTHOR"
+      }
+    },
+    {
+      "id": "4",
+      "text": "Sarah Lee",
+      "data": {
+        "id": "98fdd63a0f4e48d5a12989fc4179b8f11",
+        "description": "A co-author of research with Emily Davis.",
+        "name": "Sarah Lee",
+        "type": "AUTHOR"
+      }
+    },
+    {
+      "id": "5",
+      "text": "Emily davis",
+      "color": "red",
+      "data": {
+        "id": "503f994f3a7c45c1be98b704da9f8d6d1",
+        "description": "An author with combinations of co-authors.",
+        "name": "Emily davis",
+        "type": "AUTHOR"
+      }
+    }
+  ],
+  "lines": [
+    {
+      "from": "0",
+      "to": "1",
+      "text": "RELATED",
+      "data": {
+        "id": "bf1e6c33d979440f8cf4e8ad8dbab5831",
+        "description": "Emily Davis is related to John Smith as a co-author."
+      }
+    },
+    {
+      "from": "0",
+      "to": "2",
+      "text": "RELATED",
+      "data": {
+        "id": "bd2f5c45a2f34ef6979b987a26b7d3421",
+        "description": "Emily Davis is related to Alice Johnson as a co-author."
+      }
+    },
+    {
+      "from": "0",
+      "to": "3",
+      "text": "RELATED",
+      "data": {
+        "id": "e9cadd30d8b94a8bbff4a4d5e58a01821",
+        "description": "Emily Davis is related to Michael Brown as a co-author."
+      }
+    },
+    {
+      "from": "0",
+      "to": "4",
+      "text": "RELATED",
+      "data": {
+        "id": "de14e0d23ed34db4bd471222ff99f58d1",
+        "description": "Emily Davis is related to Sarah Lee as a co-author."
+      }
+    },
+    {
+      "from": "5",
+      "to": "3",
+      "text": "RELATED",
+      "data": {
+        "id": "f210a06d73b84228ab3c3c8f83fdb67f1",
+        "description": "Emily davis is related to Michael Brown as a co-author."
+      }
+    },
+    {
+      "from": "5",
+      "to": "2",
+      "text": "RELATED",
+      "data": {
+        "id": "f8a463fe1c9d4330baf0a8258f34757e1",
+        "description": "Emily davis is related to Alice Johnson as a co-author."
+      }
+    }
+  ]
+}
