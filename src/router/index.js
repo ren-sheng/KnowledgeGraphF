@@ -11,6 +11,8 @@ import AreaVue from "@/views/area.vue";
 import ExpertVue from "@/views/Expert.vue";
 import InstitutionVue from "@/views/Institution.vue";
 import Algorithmic_dis from "@/views/Algorithmic_dis.vue";
+import RegularDisambiguationCo from "@/views/RegularDisambiguationCo.vue";
+import RegularDisambiguationID from "@/views/RegularDisambiguationID.vue";
 
 //定义路由关系
 const routes = [
@@ -54,6 +56,20 @@ const routes = [
                 name: 'algorithm',
                 meta: {name: "算法消歧"},
                 component: Algorithmic_dis
+            },
+            //规则消歧id
+            {
+                path: '/RegularDisambiguationID',
+                name: 'RDID',
+                meta: {name: "作者ID规则消歧"},
+                component: RegularDisambiguationID
+            },
+            //规则消歧合作者
+            {
+                path: '/RegularDisambiguationCo',
+                name: 'RDCo',
+                meta: {name: "作者合作者规则消歧"},
+                component: RegularDisambiguationCo
             }
         ]
     },
