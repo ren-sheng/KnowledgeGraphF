@@ -1,11 +1,14 @@
 <template>
-  <div style="width: 100%; height: 420px" ref="chartContainer" @click="handleClick">
+  <div style="width: 100%; height: 420px" ref="chartContainer">
   </div>
 </template>
 
 <script setup>
-import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
+
+import {defineEmits, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
+
+const emit = defineEmits(['pieChartClick'])
 
 const props = defineProps({
   pieData: {
@@ -110,7 +113,9 @@ const handleLegendClick = (params) => {
   });
 };
 
+
 const handleClick = (params) => {
+  console.log(params)
   if (!params || !params.data) {
     console.error('Invalid parameter passed to handleClick');
     return;
