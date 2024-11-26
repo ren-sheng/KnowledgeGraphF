@@ -101,7 +101,6 @@ const graphOn = () => {
 onMounted(() => {
   //导入json文件数据,路径为src/assets/data/algorithmic_dis.json
   console.log(data2)
-
 })
 </script>
 <style scoped lang="scss">
