@@ -9,7 +9,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue'
 import RelationGraph from 'relation-graph-vue3'
-import {request} from "axios";
 import data from '../resource/graph_data.json'
 
 const graphRef$ = ref<RelationGraph>()
