@@ -4,7 +4,7 @@
 </template>
 
 <script setup>
-import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
+import {nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 
 const props = defineProps({
@@ -21,12 +21,20 @@ onMounted(() => {
   drawChart(props.columnData);
 });
 
-watch(props.columnData, (newVal) => {
+// ！！！！！
+/*
+props.columnData 变 () => props.columnData
+ */
+watch(() => props.columnData, (newVal) => {
   // 当columnData发生变化时，也尝试更新图表数据
-  drawChart(newVal);
+  nextTick(() => {
+    drawChart(newVal);
+  });
 }, {deep: true});
 
 const drawChart = (data) => {
+
+  console.log(data);
   // 基于准备好的dom，初始化echarts实例
   if (mychart.value) {
     // 如果已存在实例，则先清除
