@@ -65,6 +65,12 @@ const containerWidth = computed(() => ({
             </el-icon>
             <span slot="title"> 机构信息</span>
           </el-menu-item>
+          <el-menu-item index="/algorithm">
+            <el-icon>
+              <OfficeBuilding/>
+            </el-icon>
+            <span slot="title"> 算法消歧</span>
+          </el-menu-item>
           <!-- 二级菜单 -->
           <!-- <el-submenu>
             <template>

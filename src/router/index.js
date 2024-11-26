@@ -10,6 +10,7 @@ import SearchVue from "@/views/search.vue";
 import AreaVue from "@/views/area.vue";
 import ExpertVue from "@/views/Expert.vue";
 import InstitutionVue from "@/views/Institution.vue";
+import Algorithmic_dis from "@/views/Algorithmic_dis.vue";
 
 //定义路由关系
 const routes = [
@@ -47,6 +48,12 @@ const routes = [
                 name: 'institution',
                 meta: {name: "机构信息"},
                 component: InstitutionVue
+            },
+            {
+                path: '/algorithm',
+                name: 'algorithm',
+                meta: {name: "算法消歧"},
+                component: Algorithmic_dis
             }
         ]
     },
