@@ -54,7 +54,8 @@ const graphOptions = {
   allowSwitchLineShape: true,
   allowSwitchJunctionPoint: true,
   defaultNodeColor: 'rgba(66,187,66,1)',
-  defaultJunctionPoint: 'border'
+  defaultJunctionPoint: 'border',
+  defaultLineWidth: 5,
   // 您可以参考 “Graph” 中的参数进行配置。
 
 };
