@@ -10,7 +10,7 @@ import SearchVue from "@/views/search.vue";
 import AreaVue from "@/views/area.vue";
 import ExpertVue from "@/views/Expert.vue";
 import InstitutionVue from "@/views/Institution.vue";
-import Algorithmic_dis from "@/views/Algorithmic_dis.vue";
+import AlgorithmDisambiguation from "@/views/AlgorithmDisambiguation.vue";
 import RegularDisambiguationCo from "@/views/RegularDisambiguationCo.vue";
 import RegularDisambiguationID from "@/views/RegularDisambiguationID.vue";
 
@@ -55,7 +55,7 @@ const routes = [
                 path: '/algorithm',
                 name: 'algorithm',
                 meta: {name: "算法消歧"},
-                component: Algorithmic_dis
+                component: AlgorithmDisambiguation,
             },
             //规则消歧id
             {
