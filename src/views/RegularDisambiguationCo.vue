@@ -4,6 +4,20 @@
     <view class="title">
       <text class="title-text">规则消歧展示</text>
     </view>
+    <view class="exhibition">
+      <view class="formula1">
+
+      </view>
+      <view class="graph">
+        <view style="border: #efefef solid 1px; height: 60vh;width: 100%;">
+          <relation-graph ref="graphRef$" :options="options"/>
+        </view>
+      </view>
+      <view class="formula2">
+
+      </view>
+    </view>
+
     <view class="body">
       <!--      画一个表格，展示规则消歧的结果-->
       <view class="table">
@@ -25,11 +39,7 @@
         <!--        用relation-graph画出作者合作关系-->
 
       </view>
-      <view class="graph">
-        <view style="border: #efefef solid 1px; height: 60vh;width: 50%;">
-          <relation-graph ref="graphRef$" :options="options"/>
-        </view>
-      </view>
+
     </view>
   </view>
 </template>
@@ -108,13 +118,25 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  .graph{
-    width: 100%;
-    height: 50%;
+  .exhibition{
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+    .formula1{
+      width: 25%;
+    }
+    .graph{
+      width: 50%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .formula2{
+      width: 25%;
+    }
   }
+
   //justify-content: center;
   .title{
     width: 100%;
