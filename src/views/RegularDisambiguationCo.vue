@@ -6,7 +6,9 @@
     </view>
     <view class="exhibition">
       <view class="formula1">
-
+        <KaTeX class="f1-title" content="Jaccard相似度"></KaTeX>
+        <KaTeX class="c1" :content="c1" />
+        <KaTeX v-if="ansco" class="c11" :content="c11" />
       </view>
       <view class="graph">
         <view style="border: #efefef solid 1px; height: 60vh;width: 100%;">
@@ -14,7 +16,9 @@
         </view>
       </view>
       <view class="formula2">
-
+        <KaTeX class="f2-title" content="Levenshtein相似度"></KaTeX>
+        <KaTeX class="c2" :content="c2" />
+        <KaTeX v-if="ansco" class="c21" :content="c21" />
       </view>
     </view>
 
@@ -44,9 +48,11 @@
   </view>
 </template>
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import RelationGraph from 'relation-graph-vue3'
 import data2 from '../resource/author_data.json'
+import KaTeX from "@/components/common/KaTeX.vue";
+
 
 const graphRef$ = ref<RelationGraph>()
 const options = {
@@ -104,10 +110,27 @@ const tableData2 = ref<TableData2Item[]>([
   }
 ]);
 
+const c1="J(A, B) = \\frac{|A \\cap B|}{|A \\cup B|}"
+const c11="其中\\\\" +
+    "A为\\verb|Emily Davis|的合作者集合\\\\"+
+    "B为\\verb|Emily davis|的合作者集合\\\\" +
+    "J(A, B) = \\frac{|A \\cap B|}{|A \\cup B|}=\\frac{2}{4}=0.5"
+
+const c2="L(a, b) = \\frac{1}{1 + dis(a, b)}\\\\" +
+    "其中\\\\" +
+    "dis(a, b)为a和b的编辑距离"
+const c21="其中\\\\" +
+    "a为\\verb|Emily Davis|\\\\" +
+    "b为\\verb|Emily davis|\\\\" +
+    "L(a, b) = \\frac{1}{1 + dis(a, b)}=\\frac{1}{1 + 1}=0.5"
+
+
 const graphOn = () => {
   ansco.value = !ansco.value
   graphRef$.value.setJsonData(data2)
 }
+
+
 onMounted(() => {
   //导入json文件数据,路径为src/assets/data/algorithmic_dis.json
   console.log(data2)
@@ -124,6 +147,24 @@ onMounted(() => {
     width: 100%;
     .formula1{
       width: 25%;
+      .f1-title{
+        width: 100%;
+        height: 50px;
+        //background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .title-text{
+          font-size: 20px;
+          color: #333;
+        }
+      }
+      .c1{
+        width: 100%;
+      }
+      .c11{
+        width: 100%;
+      }
     }
     .graph{
       width: 50%;
@@ -134,6 +175,24 @@ onMounted(() => {
     }
     .formula2{
       width: 25%;
+      .f2-title{
+        width: 100%;
+        height: 50px;
+        //background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .title-text{
+          font-size: 20px;
+          color: #333;
+        }
+      }
+      .c2{
+        width: 100%;
+      }
+      .c21{
+        width: 100%;
+      }
     }
   }
 
@@ -149,6 +208,7 @@ onMounted(() => {
       font-size: 20px;
       color: #333;
     }
+
   }
   .body{
     width: 100%;
