@@ -121,7 +121,6 @@ const containerWidth = computed(() => ({
 
         <!-- 页尾  -->
         <el-footer style="position: fixed; bottom: 0; width: 100%;">
-          123456
         </el-footer>
       </el-container>
     </el-container>

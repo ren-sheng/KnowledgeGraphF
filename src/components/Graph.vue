@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div ref="myPage" style="height:calc(100vh);">
+    <div ref="myPage" style="height:calc(80vh);">
       <RelationGraph ref="graphRef" :options="graphOptions" @node-click="onNodeClick" @line-click="onLineClick">
         <template #node="{node}">
           <div>
