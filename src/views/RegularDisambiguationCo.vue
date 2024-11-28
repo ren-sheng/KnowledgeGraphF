@@ -52,6 +52,7 @@ import {computed, onMounted, ref} from 'vue'
 import RelationGraph from 'relation-graph-vue3'
 import data2 from '../resource/author_data.json'
 import KaTeX from "@/components/common/KaTeX.vue";
+import {View} from "@element-plus/icons-vue";
 
 
 const graphRef$ = ref<RelationGraph>()

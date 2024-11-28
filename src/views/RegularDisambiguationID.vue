@@ -31,6 +31,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import {View} from "@element-plus/icons-vue";
 
 const tableData = ref([
   {

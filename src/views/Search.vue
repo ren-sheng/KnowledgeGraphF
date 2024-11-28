@@ -30,7 +30,8 @@
       </div>
     </div>
     <div class="footer">
-      <div class="slogan">张在栩嘉的装上</div>
+<!--      <div class="slogan">张在栩嘉的装上</div>-->
+      <div class="slogan">站在巨人的肩膀上</div>
     </div>
 
   </div>
