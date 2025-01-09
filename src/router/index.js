@@ -13,20 +13,20 @@ import InstitutionVue from "@/views/Institution.vue";
 import AlgorithmDisambiguation from "@/views/AlgorithmDisambiguation.vue";
 import RegularDisambiguationCo from "@/views/RegularDisambiguationCo.vue";
 import RegularDisambiguationID from "@/views/RegularDisambiguationID.vue";
+import IntroductionVue from "@/views/Introduction.vue"
 
 //定义路由关系
 const routes = [
-    // {
-    //     path: '/login',
-    //     component: LoginVue,
-    // },
     {
         path: '/',
         component: HomeVue,
-        //重定向
-        // redirect: '/login',
-        // 子路由
         children: [
+            {
+                path: '',  // 默认子路由
+                name: 'introduction',
+                meta: {name: "首页"},
+                component: IntroductionVue
+            },
             {
                 path: '/search',
                 name: 'search',
@@ -38,12 +38,6 @@ const routes = [
                 name: 'area',
                 meta: {name: "研究领域"},
                 component: AreaVue
-            },
-            {
-                path: '/expert',
-                name: 'expert',
-                meta: {name: "学术专家"},
-                component: ExpertVue
             },
             {
                 path: '/institution',
@@ -70,14 +64,15 @@ const routes = [
                 name: 'RDCo',
                 meta: {name: "作者合作者规则消歧"},
                 component: RegularDisambiguationCo
+            },
+            {
+                path: '/expert/:id',
+                name: 'Expert',
+                meta: {name: "学术专家"},
+                component: ExpertVue
             }
         ]
-    },
-    // 添加这个通配符路由 访问一个未定义的路径时，重定向到登录页面 最后一个元素
-    // {
-    //     path: '/:pathMatch(.*)*',
-    //     redirect: '/login',
-    // }
+    }
 ]
 
 //创建路由器

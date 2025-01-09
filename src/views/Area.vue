@@ -1,5 +1,6 @@
 <template>
   <div class="container1">
+    <!-- 搜索框-->
     <el-container class="search-container">
       <el-form class="demo-dynamic">
         <el-form-item>
@@ -67,40 +68,49 @@
     <!--          </div>-->
     <!--        </el-container>-->
     <el-container>
+
       <el-main>
         <!-- 此处用于展示某一论文与之相关的引文网络 -->
+
         <div class="drag-container" ref="container">
-          <transition name="panel">
-            <div
-                class="drag-item1"
-                ref="leftPanel"
-                :style="{ flexBasis: leftFlex }"
-            >
-              <el-table :data="nodes" style="width: 100%" :row-class-name="tableRowClassName"
-                        @row-click="handleRowClick"
-                        @row-mouseover="handleRowMouseover"
-                        @row-mouseout="handleRowMouseout">
-                <el-table-column class="thead" label="Origin Paper">
-                  <template #default="scope">
-                    <div>
-                      <strong>Title:</strong> {{ scope.row.TI }}<br>
-                      <strong>Authors:</strong> {{ scope.row.AU }}<br>
-                      <strong>Year:</strong> {{ scope.row.PY }}
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
-          </transition>
+          <el-card style="width: 32.5%;height: 100%" always>
+            <!--            <transition name="panel">-->
+            <!--              <div>-->
+            <!--                  class="drag-item1"-->
+            <!--                  ref="leftPanel"-->
+            <!--                  :style="{ flexBasis: leftFlex }"-->
+
+            <!--              <el-card class="card" shadow="always">-->
+            <el-table :data="nodes" style="width: 100%" :row-class-name="tableRowClassName"
+                      @row-click="handleRowClick"
+                      @row-mouseover="handleRowMouseover"
+                      @row-mouseout="handleRowMouseout"
+                      max-height="100vh">
+             >
+              <el-table-column class="thead" label="Origin Paper">
+                <template #default="scope">
+                  <div>
+                    <strong>Title:</strong> {{ scope.row.TI }}<br>
+                    <strong>Authors:</strong> {{ scope.row.AU }}<br>
+                    <strong>Year:</strong> {{ scope.row.PY }}
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!--              </div>-->
+            <!--            </transition>-->
+          </el-card>
+
           <!-- 此处用于展示论文知识图谱 -->
-          <transition name="panel">
+          <el-card style="width: 32.5%;height: 100%" always>
             <div style="width:500px;height:calc(100vh);">
               <RelationGraph ref="graphRef" :options="graphOptions" @node-click="onNodeClick"
                              @line-click="onLineClick"/>
             </div>
-          </transition>
+          </el-card>
+
           <!-- 此处表示某一图谱节点对应的论文的详细信息 -->
-          <transition name="panel">
+          <el-card style="width: 32.5%;height: 100%" always>
             <div
                 class="drag-item2"
                 ref="rightPanel"
@@ -119,7 +129,8 @@
                 <p>悬停或点击左侧节点以显示信息。</p>
               </div>
             </div>
-          </transition>
+          </el-card>
+
         </div>
         <div id="graph-container"></div>
       </el-main>
@@ -245,6 +256,53 @@ const nodes = ref([
     nodeOpacity: 0.7,
     TI: "A Simplified Management of Transverse Testicular Ectopia in Patients with Persistent Mullerian Duct Syndrome",
     AU: "Zhou, J; He, JZ; Zhu, F",
+    PY: "2021",
+    SO: "ZYGOTE",
+    Z9: "90",
+    AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
+    DT: "Journal Article",
+    PU: "Springer",
+    WC: "Computer Science",
+    CR: "Smith, J. et al. (2020). A Study on Artificial Intelligence.",
+    DI: "10.1007/s11280-020-00776-5"
+  },
+    //
+  {
+    id: 10,
+    nodeCircle: 20,
+    nodeOpacity: 1,
+    TI: "Symptom Resolution and Recurrence Outcomes after Partial Versus Total Laparoscopic Adrenalectomy: 13 years of Experience with Medium-Long Term Follow up",
+    AU: "Knochel, AD; Jordan, AM",
+    PY: "2021",
+    SO: "ZYGOTE",
+    Z9: "90",
+    AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
+    DT: "Journal Article",
+    PU: "Springer",
+    WC: "Computer Science",
+    CR: "Smith, J. et al. (2020). A Study on Artificial Intelligence.",
+    DI: "10.1007/s11280-020-00776-5"
+  },{
+    id: 11,
+    nodeCircle: 20,
+    nodeOpacity: 1,
+    TI: "Symptom Resolution and Recurrence Outcomes after Partial Versus Total Laparoscopic Adrenalectomy: 13 years of Experience with Medium-Long Term Follow up",
+    AU: "Knochel, AD; Jordan, AM",
+    PY: "2021",
+    SO: "ZYGOTE",
+    Z9: "90",
+    AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
+    DT: "Journal Article",
+    PU: "Springer",
+    WC: "Computer Science",
+    CR: "Smith, J. et al. (2020). A Study on Artificial Intelligence.",
+    DI: "10.1007/s11280-020-00776-5"
+  },{
+    id: 12,
+    nodeCircle: 20,
+    nodeOpacity: 1,
+    TI: "Symptom Resolution and Recurrence Outcomes after Partial Versus Total Laparoscopic Adrenalectomy: 13 years of Experience with Medium-Long Term Follow up",
+    AU: "Knochel, AD; Jordan, AM",
     PY: "2021",
     SO: "ZYGOTE",
     Z9: "90",
@@ -549,6 +607,11 @@ const onLineClick = (lineObject, linkObject, $event) => {
 
 <style scoped>
 
+.card {
+  width: 600px;
+  height: 100%;
+}
+
 .demo-dynamic {
   width: 1000px;
   justify-content: center; /* 水平居中 */
@@ -745,8 +808,10 @@ const onLineClick = (lineObject, linkObject, $event) => {
 
 .drag-container {
   display: flex;
-  height: 66vh;
-  overflow: hidden; /* 隐藏滚动条 */
+  //height: 600px;
+  height: 77vh;
+  justify-content: space-between; /* 或者 space - around */
+//overflow: hidden; /* 隐藏滚动条 */
 }
 
 .drag-item1 {

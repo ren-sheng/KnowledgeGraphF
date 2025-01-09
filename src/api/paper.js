@@ -11,6 +11,7 @@ export const searchPapers = (searchText, searchType) => {
     }
 }
 
+
 const url = "Papers"
 
 // 通过作者搜索论文

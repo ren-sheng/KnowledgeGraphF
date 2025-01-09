@@ -64,7 +64,7 @@ const containerWidth = computed(() => ({
               <Guide/>
             </el-icon>
             <span slot="title"> 研究领域</span></el-menu-item>
-          <el-menu-item index="/expert">
+          <el-menu-item index="/expert/1">
             <el-icon>
               <User/>
             </el-icon>
