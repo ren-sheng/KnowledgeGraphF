@@ -163,12 +163,15 @@ const clickedText2 = ref('');
 //中文置换表
 const chineseMap = {
   'author_id': '作者ID',
+  'name': '作者姓名',
   'author_name': '作者姓名',
   'sc': '研究方向',
   'ri': 'RI',
   'oi': 'OI',
   'institution_id': '机构ID',
-  'institution_name': '机构名称'
+  'institution': '机构名称',
+  'institution_name': '机构名称',
+  'line': '合作论文'
 };
 
 
@@ -321,6 +324,7 @@ const search = async () => {
 
     // 合并 lines 并更新 from 和 to 的 id
     const combinedLines = [];
+
     const updateLineIds = (lines) => {
       lines.forEach((line) => {
         const fromNode1 = finalResult1.nodes.find((node) => node.id === line.from);
@@ -331,11 +335,21 @@ const search = async () => {
         const newFromId = textMap.get(fromNode1 ? fromNode1.text : fromNode2.text);
         const newToId = textMap.get(toNode1 ? toNode1.text : toNode2.text);
 
-        combinedLines.push({
-          ...line,
-          from: newFromId,
-          to: newToId
+        const isDuplicate = combinedLines.some((existingLine) => {
+          // 检查头尾节点是否一致或者头尾互换是否一致
+          return (
+              (existingLine.from === newFromId && existingLine.to === newToId) ||
+              (existingLine.from === newToId && existingLine.to === newFromId)
+          );
         });
+
+        if (!isDuplicate) {
+          combinedLines.push({
+            ...line,
+            from: newFromId,
+            to: newToId
+          });
+        }
       });
     };
     updateLineIds(finalResult1.lines);
@@ -406,12 +420,17 @@ const graphOn = (finalResult) => {
 const handleNodeClick = (node: any) => {
   clickedText.value = node.text;
   clickedText2.value=node.type;
+  console.log(clickedText2.value);
 };
 
 // 处理连线点击事件
 const handleLineClick = (line: any) => {
   clickedText.value = line.text;
-  clickedText2.value = line.type;
+  if (line.text) {
+    clickedText2.value = 'line';
+  }
+  // clickedText2.value = line;
+  console.log(clickedText2.value);
 };
 
 // 图表数据处理逻辑

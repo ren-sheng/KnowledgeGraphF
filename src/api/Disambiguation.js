@@ -92,7 +92,7 @@ export function transformData(dataList) {
         );
         if (!existingConnection) {
             const lineId = globalLineId++;
-            lines.push({ id: lineId.toString(), from, to, text,isHideArrow: true });
+            lines.push({ id: lineId.toString(), from, to, text,isHideArrow: true,type:"line" });
             // lines.push({ id: (globalLineId++).toString(), from: to, to: from, text });
         }
     };
@@ -185,7 +185,7 @@ export function transformData2(dataList) {
         );
         if (!existingConnection) {
             const lineId = globalLineId2++;
-            lines.push({ id: lineId.toString(), from, to, text, isHideArrow: true });
+            lines.push({ id: lineId.toString(), from, to, text, isHideArrow: true,type:"line" });
         }
     };
 
