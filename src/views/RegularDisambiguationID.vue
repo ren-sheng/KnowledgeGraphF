@@ -28,7 +28,24 @@
         <!-- 图谱展示区域 -->
         <div class="graph">
           <div style="border: 1px solid #efefef; height: 60vh; width: 100%; position: relative;">
-            <relation-graph ref="graphRef$" :options="options" @node-click="handleNodeClick" @line-click="handleLineClick"/>
+            <relation-graph ref="graphRef$" :options="options" @node-click="handleNodeClick" @line-click="handleLineClick">
+              <template #node="{node}">
+                <div class="c-round" style="" v-if="node.text!=form.searchText1 && node.text!=form.searchText2">
+                  <el-icon color="#3372b7" :size="45" v-if="node.type==='author_id'"><User  /></el-icon>
+                  <el-icon color="#16a34a" :size="45" v-if="node.type==='author_name'"><UserFilled  /></el-icon>
+                  <el-icon color="#16a34a" :size="45" v-if="node.type==='name'"><UserFilled  /></el-icon>
+                  <el-icon color="#64748b" :size="45" v-if="node.type==='institution'"><LocationFilled  /></el-icon>
+                  <el-icon color="#64748b" :size="45" v-if="node.type==='institution_name'"><LocationFilled  /></el-icon>
+                  <el-icon color="#3372b7" :size="45" v-if="node.type==='institution_id'"><Location  /></el-icon>
+                  <el-icon color="#71b4f5" :size="45" v-if="node.type==='sc'"><Search  /></el-icon>
+                  <el-icon color="#db2777" :size="45" v-if="node.type==='ri'"><Aim  /></el-icon>
+                  <el-icon color="#80082d" :size="45" v-if="node.type==='oi'"><Pointer  /></el-icon>
+                </div>
+                <div class="c-round" v-else> <el-icon color="#66ccff" :size="50"><StarFilled /></el-icon> </div>
+                <div class="c-node-name" :style="{color:node.fontcolor}" v-if="node.text!=form.searchText1 && node.text!=form.searchText2">{{node.text}}</div>
+                <div class="c-node-name" :style="{color:'#66ccff'}" v-else>{{node.text}}</div>
+              </template>
+            </relation-graph>
             <!-- 显示点击内容的区域 -->
             <div class="clicked-content" v-if="clickedText">
               {{chineseMap[clickedText2]}}  :  {{ clickedText }}
@@ -63,23 +80,32 @@
           <!-- 图例区域 -->
           <div class="legend">
             <div class="legend-item">
-              <span class="legend-color" style="background-color: #d97706;"></span>
+              <el-icon :size="20" v-if="isAu" ><User  /></el-icon>
+              <el-icon :size="20" v-else ><Location  /></el-icon>
               <span class="legend-label">{{ isAu ? "作者ID" : "机构ID" }}</span>
             </div>
             <div class="legend-item">
-              <span class="legend-color" style="background-color: #16a34a;"></span>
+              <el-icon :size="20"><UserFilled  /></el-icon>
               <span class="legend-label">作者名</span>
             </div>
             <div class="legend-item">
-              <span class="legend-color" style="background-color: #2563eb;"></span>
+              <el-icon :size="20"><Search  /></el-icon>
               <span class="legend-label">研究方向</span>
             </div>
             <div class="legend-item">
-              <span class="legend-color" style="background-color: #64748b;"></span>
+              <el-icon :size="20"><LocationFilled  /></el-icon>
               <span class="legend-label">机构名</span>
             </div>
             <div class="legend-item">
-              <span class="legend-color" style="background-color: #ffffff; border: 3px solid #ff8c00;"></span>
+              <el-icon :size="20"><Aim  /></el-icon>
+              <span class="legend-label">RI</span>
+            </div>
+            <div class="legend-item">
+              <el-icon :size="20"><Pointer  /></el-icon>
+              <span class="legend-label">OI</span>
+            </div>
+            <div class="legend-item">
+              <el-icon :size="20"><StarFilled  /></el-icon>
               <span class="legend-label">搜索词</span>
             </div>
           </div>
@@ -133,6 +159,8 @@
 </template>
 
 <script setup lang="ts">
+import {Aim, Location, LocationFilled, Pointer, User, UserFilled, Search, StarFilled} from "@element-plus/icons-vue";
+
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 import { ref, computed, onMounted } from 'vue';
 import { Bar } from 'vue-chartjs';
@@ -147,8 +175,9 @@ import {
 } from 'chart.js';
 import {searchAuthor, transformData, transformData2} from '../api/Disambiguation.js';
 import { uploadFile, setThresholdsWeights } from '../api/flask.js';
-import RelationGraph from "relation-graph-vue3";
+import RelationGraph, { RGJsonData, RGOptions, RGNode, RGLine, RGLink, RGUserEvent, RelationGraphComponent } from 'relation-graph-vue3';
 import { ElDrawer, ElMessage, ElLoading } from 'element-plus';
+import CircumIcon from "@klarr-agency/circum-icons-vue/src/CircumIcons.vue";
 
 // 控制两个抽屉的显示状态
 const drawerVisible = ref(false);
@@ -284,7 +313,6 @@ const result2 = ref([]);
 const result = ref([]);
 
 
-
 const search = async () => {
   try {
     const response1 = await searchAuthor(form.value.searchText1, form.value.searchType);
@@ -361,22 +389,33 @@ const search = async () => {
     };
     isAu.value = form.value.searchType === 'name';
     graphOn(combinedResult);
+
+
+
   } catch (error) {
     console.error('搜索失败:', error);
   }
 };
 
 const graphRef$ = ref<RelationGraph>();
-const options = {
-  "backgroundImageNoRepeat": true,
-  "moveToCenterWhenRefresh": false,
-  "layouts": [
+const options : RGOptions = {
+  backgrounImageNoRepeat: true,
+  moveToCenterWhenRefresh: true,
+  zoomToFitWhenRefresh: true,
+  placeOtherGroup: true,
+  defaultNodeWidth: 60,
+  defaultNodeHeight: 60,
+  defaultLineWidth: 1,
+  defaultLineShape: 5,
+  lineUseTextPath: true,
+  defaultLineFontColor: 'rgba(0, 0, 0, 0.6)',
+  layouts: [
     {
-      "label": "中心",
-      "layoutName": "center",
-      "centerOffset_x": 0,
-      "centerOffset_y": 0,
-      "distance_coefficient": 1
+      label: "中心",
+      layoutName: "center",
+      centerOffset_x: 0,
+      centerOffset_y: 0,
+      distance_coefficient: 1
     }
   ]
 };
@@ -394,8 +433,8 @@ const graphOn = (finalResult) => {
       if (node.text === searchText) {
         node.color = 'transparent';
         node.borderWidth = 3;
-        node.borderColor = '#ff8c00';
-        node.fontColor = '#ff8c00';
+        node.borderColor = 'transparent';
+        node.fontColor = '#3372b7';
       }
     });
     console.log(finalResult.nodes);
@@ -405,8 +444,8 @@ const graphOn = (finalResult) => {
       if (node.text === searchText2) {
         node.color = 'transparent';
         node.borderWidth = 3;
-        node.borderColor = '#ff8c00';
-        node.fontColor = '#ff8c00';
+        node.borderColor = 'transparent';
+        node.fontColor = '#3372b7';
       }
     });
     console.log(finalResult.nodes);
@@ -590,7 +629,11 @@ const doFilter = () => {
 
 
   graphInstance.dataUpdated();
+
+
 };
+
+
 
 </script>
 
@@ -659,5 +702,38 @@ const doFilter = () => {
 .clicked-content:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* 鼠标悬停时阴影加深 */
   transform: translateY(-2px); /* 鼠标悬停时轻微上移 */
+}
+
+::v-deep(.relation-graph) {
+  .c-rg-line,.c-rg-line-path {
+    filter: drop-shadow(rgba(0, 0, 0, 0.6) 0px 0px 4px);
+    stroke: rgb(0, 0, 0) !important;
+    stroke-dasharray: 1148.41;
+    stroke-dashoffset: 99px;
+    animation-name: myAnimation;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+  }
+}
+
+.c-round {
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  width: 60px;
+  height: 60px;
+
+  border-radius: 50%;
+
+  //background-color: #f5f5f5;
+
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+
+  font-size: 4px;
+  color: #333;
+
 }
 </style>

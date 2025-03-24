@@ -78,7 +78,7 @@ export function transformData(dataList) {
         }
 
         const id = globalNodeId++;
-        const newNode = { id: id.toString(), type, text, color };
+        const newNode = { id: id.toString(), type, text, color:"transparent",fontColor:color };
         nodes.push(newNode);
         nodeMap[id] = newNode;
         return newNode;
@@ -99,14 +99,14 @@ export function transformData(dataList) {
 
     dataList.forEach(data => {
         // 处理主作者信息
-        const mainAuthorNode = addNode("author_id", data.id.toString(), "#d97706");
+        const mainAuthorNode = addNode("author_id", data.id.toString(), "#3372b7");
         const mainAuthorNameNode = addNode("name", data.name[0], "#16a34a");
         addConnection(mainAuthorNode.id, mainAuthorNameNode.id, null);
 
         // 处理研究领域（sc）
         if (data.sc){
             data.sc.forEach((field) => {
-                const scNode = addNode("sc", field, "#2563eb");
+                const scNode = addNode("sc", field, "#71b4f5");
                 addConnection(mainAuthorNode.id, scNode.id, null);
             });
         }
@@ -139,7 +139,7 @@ export function transformData(dataList) {
         if (data.coauthor) {
             data.coauthor.forEach((coauthorName, index) => {
                 const collaboratorAuthorId = data.collaborator_author_ids[index].toString();
-                const collaboratorAuthorNode = addNode("author_id", collaboratorAuthorId, "#d97706");
+                const collaboratorAuthorNode = addNode("author_id", collaboratorAuthorId, "#3372b7");
                 addConnection(mainAuthorNode.id, collaboratorAuthorNode.id, data.paper[0]);
             });
         }
@@ -171,7 +171,7 @@ export function transformData2(dataList) {
         }
 
         const id = globalNodeId2++;
-        const newNode = { id: id.toString(), type, text, color };
+        const newNode = { id: id.toString(), type, text, color:"transparent",fontColor:color };
         nodes.push(newNode);
         nodeMap[id] = newNode;
         return newNode;
@@ -191,7 +191,7 @@ export function transformData2(dataList) {
 
     dataList.forEach(data => {
         // 处理机构信息
-        const institutionIdNode = addNode("institution_id", data.institutionId.toString(), "#d97706");
+        const institutionIdNode = addNode("institution_id", data.institutionId.toString(), "#3372b7");
         data.institutionNames.forEach((institutionName) => {
             const institutionNameNode = addNode("institution_name", institutionName, "#64748b");
             addConnection(institutionIdNode.id, institutionNameNode.id, null);
