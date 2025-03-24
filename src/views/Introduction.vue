@@ -13,6 +13,33 @@
           通过整合多源数据，构建学术知识图谱，帮助用户快速获取相关领域的研究动态、专家信息和研究成果。</p>
       </div>
 
+
+
+      <div class="section">
+        <h2>AI赋能</h2>
+        <div class="ai-features">
+          <div class="deepseek-feature">
+            <img src="@/assets/deepseek.png" alt="DeepSeek Logo" class="deepseek-logo">
+            <div class="feature-text">
+              <h3>DeepSeek 大语言模型</h3>
+              <p>集成先进的 DeepSeek 大语言模型，提供智能问答和深度语义理解能力，
+                 帮助用户更好地理解和挖掘学术内容。</p>
+            </div>
+          </div>
+          
+          <div class="graphrag-feature">
+            <div class="feature-icon">📊</div>
+            <div class="feature-text">
+              <h3>GraphRAG 知识图谱增强</h3>
+              <p>采用 GraphRAG 技术，结合知识图谱和检索增强生成，
+                 为用户提供更准确和全面的学术信息检索服务。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
       <div class="section">
         <h2>核心功能</h2>
         <div class="features">
@@ -131,5 +158,68 @@ ul li::before {
   position: absolute;
   left: 0;
   top: -5px;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #409eff, transparent);
+  margin: 20px 0;
+}
+
+.ai-section {
+  margin: 20px 0;
+}
+
+.ai-features {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.deepseek-feature,
+.graphrag-feature {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.deepseek-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  min-width: 60px;
+  text-align: center;
+}
+
+.feature-text {
+  flex: 1;
+}
+
+.feature-text h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.feature-text p {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .ai-features {
+    flex-direction: column;
+  }
 }
 </style> 
