@@ -2,15 +2,18 @@
   <div class="container">
     <el-container class="search-container">
       <div>
-        <el-autocomplete v-model="authorName" :fetch-suggestions="querySearch" placeholder="请输入学者名称："
+        <el-autocomplete v-model="searchInput" :fetch-suggestions="querySearch" placeholder="请输入学者名称(两个字符起)"
                          @select="handleSelect" class="autocomplete" suffix-icon="el-icon-search">
           <template v-slot:default="{ item }">
-            <span>{{ item }}</span>
+            <div class="suggestion-item">
+              <span>{{ item.value }}</span>
+              <span class="affiliation">{{ item.affiliation }}</span>
+            </div>
           </template>
         </el-autocomplete>
       </div>
     </el-container>
-    <el-container>
+    <el-container v-if="hasSelectedExpert">
       <el-main>
         <el-row :gutter="10">
           <el-col :span="14">
@@ -93,7 +96,13 @@
         </template>
       </el-main>
     </el-container>
-
+    <el-container v-else>
+      <el-main style="text-align: center;">
+        <el-empty description="请输入学者名称进行搜索">
+          <!-- <img src="@/assets/images/search.png" style="width: 200px; height: 200px;" /> -->
+        </el-empty>
+      </el-main>
+    </el-container>
   </div>
 </template>
 
@@ -104,9 +113,11 @@ import {OfficeBuilding, Share} from "@element-plus/icons-vue";
 import {computed, onMounted, ref} from 'vue';
 import RelationGraph from 'relation-graph-vue3';
 import {useRoute} from 'vue-router'
+import axios from 'axios';
 
 const route = useRoute()
 const expertId = ref('')
+const hasSelectedExpert = ref(false);
 
 const papers = ref([
   {
@@ -129,13 +140,16 @@ const papers = ref([
   },
 ]);
 
+// 搜索框的值和显示的专家名称分开
+const searchInput = ref(''); // 新增：搜索框的输入值
+const authorName = ref(''); // 保持：显示的专家名称
+
 // 模拟数据
-const authorName = ref('Kaiming He');
-const affiliation = ref('Microsoft, Facebook');
-const fields = ref(['Computer science', 'Artificial intelligence', 'Pattern recognition', 'Machine learning', 'Computer vision']);
-const paperCount = ref(151);
-const citationCount = ref(233433);
-const kqi = ref(2.94);
+const affiliation = ref('');
+const fields = ref([]);
+const paperCount = ref(0);
+const citationCount = ref(0);
+const kqi = ref(0);
 
 // 定义graphRef，这里不再有类型约束，直接初始化为null
 const graphRef = ref(null);
@@ -200,15 +214,133 @@ const avatarStyle = computed(() => {
   };
 });
 
+// 补充完整的模拟数据
+const mockExperts = [
+  { id: '1', name: 'Kaiming He', affiliation: 'Facebook AI Research' },
+  { id: '2', name: 'Kai Li', affiliation: 'Princeton University' },
+  { id: '3', name: 'Kai Yu', affiliation: 'Shanghai Jiao Tong University' },
+  { id: '4', name: 'Karen Liu', affiliation: 'Stanford University' },
+  { id: '5', name: 'Kaichen Yang', affiliation: 'MIT' }
+];
+
+// 完整的模拟专家详细信息数据
+const mockExpertDetails = {
+  '1': {
+    name: 'Kaiming He',
+    affiliation: 'Facebook AI Research',
+    fields: ['Computer Vision', 'Deep Learning', 'Machine Learning'],
+    paperCount: 151,
+    citationCount: 233433,
+    kqi: 2.94,
+    papers: [
+      {
+        id: 1,
+        title: 'Exploring Plain Vision Transformer Backbones for Object Detection',
+        authors: ['Yanghao Li', 'Hanzi Mao', 'Ross B. Girshick', 'Kaiming He'],
+        year: 2022
+      },
+      {
+        id: 2,
+        title: 'Exploring Simple Siamese Representation Learning',
+        authors: ['Xinlei Chen', 'Kaiming He'],
+        year: 2021
+      },
+      {
+        id: 3,
+        title: 'An Empirical Study of Training Self-Supervised Visual Transformers',
+        authors: ['Xinlei Chen', 'Saining Xie', 'Kaiming He'],
+        year: 2021
+      }
+    ]
+  },
+  '2': {
+    name: 'Kai Li',
+    affiliation: 'Princeton University',
+    fields: ['Database Systems', 'Distributed Systems', 'Storage Systems'],
+    paperCount: 89,
+    citationCount: 45678,
+    kqi: 2.15,
+    papers: [
+      {
+        id: 1,
+        title: 'Distributed Database Systems: Principles and Practice',
+        authors: ['Kai Li', 'John Smith', 'Mary Johnson'],
+        year: 2021
+      },
+      {
+        id: 2,
+        title: 'Modern Storage Systems Architecture',
+        authors: ['Kai Li', 'David Brown'],
+        year: 2020
+      }
+    ]
+  },
+  '3': {
+    name: 'Kai Yu',
+    affiliation: 'Shanghai Jiao Tong University',
+    fields: ['Natural Language Processing', 'Speech Recognition', 'AI'],
+    paperCount: 76,
+    citationCount: 28900,
+    kqi: 1.98,
+    papers: [
+      {
+        id: 1,
+        title: 'Advanced Speech Recognition Systems',
+        authors: ['Kai Yu', 'Lisa Chen'],
+        year: 2022
+      }
+    ]
+  },
+  '4': {
+    name: 'Karen Liu',
+    affiliation: 'Stanford University',
+    fields: ['Computer Graphics', 'Animation', 'Robotics'],
+    paperCount: 65,
+    citationCount: 18500,
+    kqi: 1.85,
+    papers: [
+      {
+        id: 1,
+        title: 'Physics-based Character Animation',
+        authors: ['Karen Liu', 'Michael Brown'],
+        year: 2021
+      }
+    ]
+  },
+  '5': {
+    name: 'Kaichen Yang',
+    affiliation: 'MIT',
+    fields: ['Robotics', 'Control Systems', 'AI'],
+    paperCount: 45,
+    citationCount: 12300,
+    kqi: 1.76,
+    papers: [
+      {
+        id: 1,
+        title: 'Autonomous Robot Navigation Systems',
+        authors: ['Kaichen Yang', 'Robert Wilson'],
+        year: 2022
+      }
+    ]
+  }
+};
+
 // 挂载后执行的函数
 onMounted(() => {
-  // 从路由参数中获取专家ID
-  expertId.value = route.params.id
-  if (expertId.value == null) {
-    expertId.value = '1'
+  expertId.value = route.params.id;
+  if (expertId.value && expertId.value !== '0') {
+    hasSelectedExpert.value = true;
+    const expertDetails = mockExpertDetails[expertId.value];
+    if (expertDetails) {
+      authorName.value = expertDetails.name;
+      affiliation.value = expertDetails.affiliation;
+      fields.value = expertDetails.fields;
+      paperCount.value = expertDetails.paperCount;
+      citationCount.value = expertDetails.citationCount;
+      kqi.value = expertDetails.kqi;
+      papers.value = expertDetails.papers;
+    }
   }
-  // 根据ID加载专家详情
-  loadExpertDetails(expertId.value)
   showGraph();
 });
 
@@ -290,16 +422,54 @@ const onLineClick = (lineObject, linkObject, $event) => {
   console.log('onLineClick:', lineObject);
 };
 
-const loadExpertDetails = async (id) => {
-  // 加载专家详情的逻辑
-  if (id == '1') {
-    authorName.value = 'Kaiming He'
-  } else if (id == '2') {
-    authorName.value = 'Xinlei Chen'
-  } else if (id == '3') {
-    authorName.value = 'Ross B. Girshick'
+const querySearch = async (queryString, cb) => {
+  if (queryString.length >= 2) {
+    const results = mockExperts.filter(expert => 
+      expert.name.toLowerCase().includes(queryString.toLowerCase())
+    ).map(expert => ({
+      value: expert.name,
+      id: expert.id,
+      affiliation: expert.affiliation
+    }));
+    cb(results);
+  } else {
+    cb([]);
   }
-}
+};
+
+const handleSelect = (item) => {
+  // 重置所有数据
+  resetData();
+  
+  // 设置新数据
+  const expertDetails = mockExpertDetails[item.id];
+  if (expertDetails) {
+    authorName.value = expertDetails.name;
+    affiliation.value = expertDetails.affiliation;
+    fields.value = expertDetails.fields;
+    paperCount.value = expertDetails.paperCount;
+    citationCount.value = expertDetails.citationCount;
+    kqi.value = expertDetails.kqi;
+    papers.value = expertDetails.papers;
+    hasSelectedExpert.value = true;
+
+    // 更新URL，但不重新加载页面
+    window.history.pushState({}, '', `/expert/${item.id}`);
+    
+    // 清空搜索框
+    searchInput.value = '';
+  }
+};
+
+const resetData = () => {
+  // 不重置 authorName，因为它是显示用的
+  affiliation.value = '';
+  fields.value = [];
+  paperCount.value = 0;
+  citationCount.value = 0;
+  kqi.value = 0;
+  papers.value = [];
+};
 </script>
 
 
@@ -427,5 +597,17 @@ const loadExpertDetails = async (id) => {
 .icon-text-inline p {
   margin-left: 5px;
   /* 调整图标和文本之间的间距 */
+}
+
+/* 添加搜索建议项的样式 */
+.suggestion-item {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 0;
+}
+
+.suggestion-item .affiliation {
+  font-size: 12px;
+  color: #999;
 }
 </style>
