@@ -701,7 +701,7 @@ const doFilter = () => {
 
 
   graphInstance.dataUpdated();
-
+//
 
 };
 

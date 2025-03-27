@@ -2,7 +2,7 @@ import request from '@/utils/flaskrequest.js';
 
 // 上传文件
 export function uploadFile(file) {
-    if (!file) {
+    if (!file) {//
         console.error('请选择一个文件');
         // 返回一个拒绝状态的 Promise，方便调用者统一处理错误
         return Promise.reject(new Error('请选择一个文件'));
