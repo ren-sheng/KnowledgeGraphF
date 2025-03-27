@@ -1,8 +1,5 @@
 //导入vue-router
-import {
-    createRouter,
-    createWebHistory
-} from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 
 //导入组件
 import HomeVue from "@/views/Home.vue";
@@ -14,6 +11,8 @@ import AlgorithmDisambiguation from "@/views/AlgorithmDisambiguation.vue";
 import RegularDisambiguationCo from "@/views/RegularDisambiguationCo.vue";
 import RegularDisambiguationID from "@/views/RegularDisambiguationID.vue";
 import IntroductionVue from "@/views/Introduction.vue"
+import AiVue from '../views/AiVue.vue';
+import KnowledgeVue from "@/views/Knowledge.vue";
 
 //定义路由关系
 const routes = [
@@ -26,6 +25,12 @@ const routes = [
                 name: 'introduction',
                 meta: {name: "首页"},
                 component: IntroductionVue
+            },
+            {
+                path: '/ai',
+                name: 'ai',
+                meta: {name: "DeepSeek赋能"},
+                component: AiVue
             },
             {
                 path: '/search',
@@ -50,6 +55,11 @@ const routes = [
                 name: 'algorithm',
                 meta: {name: "算法消歧"},
                 component: AlgorithmDisambiguation,
+            }, {
+                path: '/knowledge',
+                name: 'knowledge',
+                meta: {name: "知识脉络"},
+                component: KnowledgeVue,
             },
             //规则消歧id
             {

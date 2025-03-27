@@ -2,17 +2,7 @@
 import {computed, ref} from 'vue';
 
 import {useRoute} from 'vue-router';
-import {
-  Checked,
-  Expand,
-  Fold,
-  Guide,
-  List,
-  OfficeBuilding,
-  Search as SearchIcon,
-  Share,
-  User
-} from "@element-plus/icons-vue";
+import {Cpu, Expand, Fold, Guide, OfficeBuilding, Search as SearchIcon, Share, User} from "@element-plus/icons-vue";
 
 
 const route = useRoute();
@@ -54,6 +44,11 @@ const containerWidth = computed(() => ({
                  :default-active="route.path" background-color="#3d495c" text-color="rgba(255,255,255,0.65)"
                  active-text-color="#fff">
           <!-- 一级菜单 index指路由 -->
+          <el-menu-item index="/ai">
+            <el-icon>
+              <Cpu/>
+            </el-icon>
+            <span slot="title"> DeepSeek赋能</span></el-menu-item>
           <el-menu-item index="/search">
             <el-icon>
               <SearchIcon/>
@@ -64,7 +59,7 @@ const containerWidth = computed(() => ({
               <Guide/>
             </el-icon>
             <span slot="title"> 研究领域</span></el-menu-item>
-          <el-menu-item index="/expert/1">
+          <el-menu-item index="/expert/0">
             <el-icon>
               <User/>
             </el-icon>
@@ -75,7 +70,11 @@ const containerWidth = computed(() => ({
             </el-icon>
             <span slot="title"> 机构信息</span>
           </el-menu-item>
-          <el-menu-item index="/algorithm">
+          <el-menu-item index="/knowledge">
+            <el-icon><Share /></el-icon>
+            <span slot="title"> 知识脉络</span>
+          </el-menu-item>
+          <!-- <el-menu-item index="/algorithm">
             <el-icon>
               <Share/>
             </el-icon>
@@ -92,7 +91,7 @@ const containerWidth = computed(() => ({
               <List/>
             </el-icon>
             <span slot="title"> 合作者规则消歧</span>
-          </el-menu-item>
+          </el-menu-item> -->
           <!-- 二级菜单 -->
           <!-- <el-submenu>
             <template>

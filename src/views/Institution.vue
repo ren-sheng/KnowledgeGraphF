@@ -5,7 +5,7 @@
         <el-autocomplete
             v-model="searchQuery"
             :fetch-suggestions="querySearch"
-            placeholder="请输入机构名称："
+            placeholder="请输入机构名称(两个字符起)"
             @select="handleSelect"
             class="autocomplete"
             suffix-icon="el-icon-search">
@@ -15,7 +15,7 @@
         </el-autocomplete>
       </div>
     </el-container>
-    <el-container>
+    <el-container v-if="hasSelectedInstitution">
       <el-main>
         <el-row :gutter="10">
           <el-col :span="14">
@@ -82,6 +82,13 @@
         </el-row>
       </el-main>
     </el-container>
+    <el-container v-else>
+      <el-main style="text-align: center;">
+        <el-empty description="请输入机构名称进行搜索">
+<!--          <img src="@/assets/images/search.png" style="width: 200px; height: 200px;" />-->
+        </el-empty>
+      </el-main>
+    </el-container>
   </div>
 </template>
 
@@ -130,7 +137,7 @@ const abbreviationMap2 = {
   'Nanotechnology': 'Nanotechnol'
 };
 
-const searchQuery = ref('Biomed Research Center');
+const searchQuery = ref('');
 const authorsearch = ref('');
 const chartData = ref(null);
 const tableData = ref(null);
@@ -142,6 +149,7 @@ const pieData = ref({
 const columnData = ref(null);
 const subjectauthorData = ref(null);
 const searchResults = ref([]);
+const hasSelectedInstitution = ref(false);
 
 const filteredtableData = computed(() => {
   if (!authorsearch.value) {
@@ -151,13 +159,6 @@ const filteredtableData = computed(() => {
     return tableData.value.filter(item => item.author.toLowerCase().includes(search));
   }
 });
-
-// onMounted(() => {
-//   if (searchQuery.value.length >= 2) {
-//     const searchQuery = replaceAbbreviations2(searchQuery.value);
-//     fetchData(searchQuery);
-//   }
-// });
 
 const querySearch = async (queryString, cb) => {
   if (queryString.length >= 2) {
@@ -212,34 +213,45 @@ const replaceAbbreviations2 = (name) => {
 };
 
 const handleSelect = (item) => {
+  // 先重置所有数据
+  chartData.value = null;
+  tableData.value = null;
+  pieData.value = {
+    subjects: [],
+    counts: [],
+    institution: ''
+  };
+  columnData.value = null;
+  subjectauthorData.value = null;
+  
+  // 然后设置新的搜索值并获取数据
   searchQuery.value = item;
   item = replaceAbbreviations2(item);
   let encodeditem = encodeURIComponent(item);
+  hasSelectedInstitution.value = true;
   fetchData(encodeditem);
 };
 
 const fetchData = async (searchQuery) => {
-  //绘制折线图的数据
-  axios.get(`http://localhost:8088/Institutions/InstitutionMessage?institutionName=${searchQuery}`)
-      .then(res => {
-        console.log(res.data);
-        if (res.status === 200) {
-          // 更新chartData
-          chartData.value = res.data.data1;
-          pieData.value.subjects = res.data.data2;
-          if (Array.isArray(pieData.value.subjects) && pieData.value.subjects.length > 0) {
-            // 移除数组的最后一个元素
-            pieData.value.subjects.pop();
-          }
-        } else {
-          // 处理错误情况
-          console.error('Failed to fetch chart data:', res.statusText);
-        }
-      })
-      .catch(error => {
-        // 处理请求错误
-        console.error('Error fetching chart data:', error);
-      });
+  // 绘制折线图的数据
+  try {
+    const res = await axios.get(`http://localhost:8088/Institutions/InstitutionMessage?institutionName=${searchQuery}`);
+    if (res.status === 200) {
+      // 确保在设置新数据前清空旧数据
+      chartData.value = null;
+      pieData.value.subjects = [];
+      
+      // 设置新数据
+      chartData.value = res.data.data1;
+      pieData.value.subjects = res.data.data2;
+      if (Array.isArray(pieData.value.subjects) && pieData.value.subjects.length > 0) {
+        pieData.value.subjects.pop();
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching chart data:', error);
+  }
+
   //绘制表格的数据
   await axios.get(`http://localhost:8088/Institutions/AUMessage?institutionName=${searchQuery}`)
       .then(res => {
@@ -395,12 +407,7 @@ const handlePieChartClick = (data) => {
 }
 
 /* 修改 el-autocomplete 组件内部的输入框样式 */
-.autocomplete {
-  /* 添加你想要修改的样式属性 */
-  height: 60px;
-  width: 500px;
 
-}
 
 /*不知道原理，但是用/deep/很有用*/
 .autocomplete :deep(.el-input__inner) {
