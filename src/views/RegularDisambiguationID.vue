@@ -124,7 +124,7 @@
           <!-- 上传文件区域 -->
           <div class="upload-section">
             <input type="file" id="fileInput" @change="handleFileChange">
-            <el-button type="primary" @click="uploadSelectedFile">上传文件</el-button>
+            <el-button type="primary" @click="uploadSelectedFile">上传csv文件</el-button>
           </div>
           <!-- 设置阈值和权值区域 -->
           <div class="settings-section">
@@ -239,7 +239,7 @@ const tableData = ref([
     columnName: 'Reprint Addresses',
     dataType: '字符串',
     description: '地址',
-    example: '[Some Address] University of Example'
+    example: 'University of Example'
   },
   {
     columnName: 'Researcher Ids',
@@ -696,7 +696,7 @@ const doFilter = () => {
         _isHideThisLine = true;
       }
     }
-    thisNode.opacity = _isHideThisLine? 0.1 : 1;
+    thisNode.opacity = _isHideThisLine? 0.5 : 1;
   });
 
 
