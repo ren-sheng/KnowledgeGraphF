@@ -5,9 +5,9 @@
         <!-- 搜索区域 -->
         <el-form :model="form" label-width="0px">
           <el-form-item>
-            <el-input v-model="form.searchText1" placeholder="请输入搜索内容" style="width: 800px;margin-right: 20px">
+            <el-input v-model="form.searchText1" placeholder="请输入搜索内容" style="width: 350px;margin-right: 20px">
             </el-input>
-            <el-input v-model="form.searchText2" placeholder="请输入搜索内容" style="width: 800px;margin-right: 20px">
+            <el-input v-model="form.searchText2" placeholder="请输入搜索内容" style="width: 350px;margin-right: 20px">
             </el-input>
             <el-select v-model="form.searchType" placeholder="请选择搜索类型" style="width: 100px;margin-right: 20px">
               <el-option label="姓名" value="name"></el-option>
@@ -18,7 +18,7 @@
             </el-select>
             <el-button type="primary" @click="search">搜索</el-button>
             <el-button type="primary" @click="openDrawer">查看相似度直方图</el-button>
-            <el-button type="primary" @click="openSettingsDrawer">打开设置</el-button>
+            <el-button type="primary" @click="openSettingsDrawer">导入csv文件</el-button>
           </el-form-item>
         </el-form>
         <el-table v-if="result.length > 0" :data="result" stripe>
@@ -152,6 +152,26 @@
               </el-form-item>
             </el-form>
           </div>
+<!--          插入md-->
+          <el-popover
+              class="box-item"
+              title="csv格式要求"
+              content="Left Center prompts info"
+              placement="left-start"
+              :width="1000"
+              trigger="click"
+          >
+            <template #reference>
+              <el-button class="mt-3 mb-3">csv格式要求</el-button>
+            </template>
+            <el-table :data="tableData" stripe>
+              <el-table-column prop="columnName" label="列名"></el-table-column>
+              <el-table-column prop="dataType" label="数据类型"></el-table-column>
+              <el-table-column prop="description" label="描述"></el-table-column>
+              <el-table-column prop="example" label="示例"></el-table-column>
+            </el-table>
+          </el-popover>
+
         </div>
       </el-drawer>
     </el-container>
@@ -159,7 +179,17 @@
 </template>
 
 <script setup lang="ts">
-import {Aim, Location, LocationFilled, Pointer, User, UserFilled, Search, StarFilled} from "@element-plus/icons-vue";
+import {
+  Aim,
+  Location,
+  LocationFilled,
+  Pointer,
+  User,
+  UserFilled,
+  Search,
+  StarFilled,
+  Compass
+} from "@element-plus/icons-vue";
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 import { ref, computed, onMounted } from 'vue';
@@ -178,6 +208,8 @@ import { uploadFile, setThresholdsWeights } from '../api/flask.js';
 import RelationGraph, { RGJsonData, RGOptions, RGNode, RGLine, RGLink, RGUserEvent, RelationGraphComponent } from 'relation-graph-vue3';
 import { ElDrawer, ElMessage, ElLoading } from 'element-plus';
 import CircumIcon from "@klarr-agency/circum-icons-vue/src/CircumIcons.vue";
+import MarkdownIt from 'markdown-it';
+// import {useMarkdown} from '@vueuse/core';
 
 // 控制两个抽屉的显示状态
 const drawerVisible = ref(false);
@@ -188,6 +220,46 @@ const uploadResult = ref(null);
 const isAu = ref(true);
 const clickedText = ref('');
 const clickedText2 = ref('');
+
+
+const tableData = ref([
+  {
+    columnName: 'Author Full Names',
+    dataType: '字符串',
+    description: '作者的全名，多个作者之间用 `; ` 分隔',
+    example: 'John Doe; Jane Smith'
+  },
+  {
+    columnName: 'Article Title',
+    dataType: '字符串',
+    description: '文章的标题',
+    example: 'The Impact of AI in Healthcare'
+  },
+  {
+    columnName: 'Reprint Addresses',
+    dataType: '字符串',
+    description: '地址',
+    example: '[Some Address] University of Example'
+  },
+  {
+    columnName: 'Researcher Ids',
+    dataType: '字符串',
+    description: '研究者ID，格式为 `作者姓名/ID`，多个ID之间用 `; ` 分隔',
+    example: 'John Doe/12345; Jane Smith/67890'
+  },
+  {
+    columnName: 'ORCIDs',
+    dataType: '字符串',
+    description: 'ORCID（开放研究者与贡献者身份识别码），格式为 `作者姓名/ORCID`，多个ORCID之间用 `; ` 分隔',
+    example: 'John Doe/0000-0001-8829-2719; Jane Smith/0000-0002-1234-5678'
+  },
+  {
+    columnName: 'Research Areas',
+    dataType: '字符串',
+    description: '研究领域，多个领域之间用 `; ` 分隔',
+    example: 'Artificial Intelligence; Machine Learning'
+  }
+]);
 
 //中文置换表
 const chineseMap = {
