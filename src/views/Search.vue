@@ -69,8 +69,8 @@ const search = async () => {
     let response = await searchPages(searchQuery.value)
     // 修改链接格式，移除 #
     const processedHtml = response.data.replace(
-      /<a href="\/expert\/(\d+)"/g, 
-      '<a href="/expert/$1"'
+        /<a href="\/expert\/(\d+)"/g,
+        '<a href="/expert/$1"'
     )
     searchResults.value = processedHtml
     isSearched.value = true
