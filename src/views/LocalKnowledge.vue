@@ -26,33 +26,36 @@
         <div class="result-container">
           <!-- 流式文本结果卡片 -->
           <el-card class="text-result-card"
-                   :body-style="{height: '82%'}">
+                   :body-style="{height: '83%'}"
+                   :header="{height:'20%'}">
             <template #header>
               <div class="card-header">
                 <span>查询结果</span>
               </div>
             </template>
             <div class="response-content">
-              <pre>{{ streamingText }}</pre>
+              <div v-if="welcome" class="welcome-message">
+                <h2>欢迎使用知识图谱查询系统</h2>
+                <p>请输入查询内容，点击查询按钮获取本地知识库推理结果。</p>
+                <small>本地知识库使用GraphRAG和deepseek建立</small>
+              </div>
+              <div v-else>
+                <pre>{{ streamingText }}</pre>
+              </div>
             </div>
           </el-card>
 
           <!-- 知识图谱卡片 -->
           <el-card class="graph-result-card"
-                   :body-style="{height: '82%'}">
+                   :body-style="{height: '83%'}"
+                   :header="{height:'20%'}">
             <template #header>
               <div class="card-header">
                 <span>知识图谱</span>
               </div>
             </template>
             <div class="response-graph">
-              <!--              <div style="display: flex; align-items: center; justify-content: center;">-->
-              <relation-graph-vue3
-                  :options="graphOptions"
-                  :nodes="graphData.nodes"
-                  :links="graphData.links"
-                  class="graph-content"/>
-              <!--              </div>-->
+              <relation-graph ref="graphRef$" :options="options"/>
             </div>
           </el-card>
         </div>
@@ -62,8 +65,10 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
-import RelationGraphVue3 from 'relation-graph-vue3';
+import {computed, onMounted, ref} from 'vue';
+import RelationGraph from 'relation-graph-vue3';
+
+const welcome = ref(true);
 
 const query = ref('');
 const loading = ref(false);
@@ -71,63 +76,71 @@ const responseData = '这是一段模拟的查询结果，用于展示流式输�
 const streamingText = ref('');
 
 const startQuery = () => {
+  welcome.value = false;
   streamingText.value = '';
   loading.value = true;
   let index = 0;
 
-  const streamChunk = () => {
+  const outputInterval = 50 // 每个字符间隔时间（毫秒）
+
+  const intervalId = setInterval(() => {
     if (index < responseData.length) {
-      // 改为逐个字符追加（可根据需要调整每次追加的字符数）
       streamingText.value += responseData.slice(index, index + 1);
       index++;
-
       // 自动滚动到底部
       const container = document.querySelector('.response-content');
       if (container) {
         container.scrollTop = container.scrollHeight;
       }
-
-      requestAnimationFrame(streamChunk);
     } else {
+      clearInterval(intervalId);
       loading.value = false;
     }
-  };
+  }, outputInterval);
 
   // 使用requestAnimationFrame优化渲染性能
-  requestAnimationFrame(streamChunk);
+  requestAnimationFrame(intervalId);
 };
+// //动态样式，当welcome为true时，response-content的子组件垂直居中
+// const responseContentStyle = computed(() => {
+//   if (welcome.value) {
+//     return {
+//       display: 'flex',
+//       justifyContent: 'center',
+//       alignItems: 'center',
+//       height: '100%',
+//     }
+//   }
+// });
 
 // 知识图谱相关
-const showGraph = ref(true);
-const graphData = ref({
-  nodes: [
-    {id: 1, text: '中心节点'},
-    {id: 2, text: '子节点1'},
-    {id: 3, text: '子节点2'},
-    {id: 4, text: '子节点3'}
-  ],
-  links: [
-    {from: 1, to: 2},
-    {from: 1, to: 3},
-    {from: 1, to: 4}
-  ]
-});
-
-const graphOptions = {
-  defaultNodeShape: 1,
-  defaultLineShape: 1,
-  layouts: [
-    {
-      label: '自动布局',
-      layoutName: 'force',
-      layoutClassName: 'seeks-layout-center'
-    }
-  ]
-};
-
-const toggleGraph = () => {
-  showGraph.value = !showGraph.value;
-};
+const graphRef$ = ref();
+const options = {
+  defaultExpandHolderPosition: 'right',
+  allowSwitchLineShape: true,
+  allowSwitchJunctionPoint: true,
+}
+onMounted(() => {
+  const jsonData = {
+    rootId: 'a',
+    nodes: [
+      {id: 'a', text: 'a',},
+      {id: 'b', text: 'b',},
+      {id: 'c', text: 'c',},
+      {id: 'd', text: 'd',},
+      {id: 'e', text: 'e',},
+      {id: 'f', text: 'f',},
+    ],
+    lines: [
+      {from: 'a', to: 'b',},
+      {from: 'a', to: 'c',},
+      {from: 'a', to: 'd',},
+      {from: 'a', to: 'e',},
+      {from: 'a', to: 'f',},
+    ],
+  }
+  graphRef$.value.setJsonData(jsonData)
+})
 </script>
 
 <style scoped>
@@ -147,6 +160,13 @@ const toggleGraph = () => {
   flex: 1;
 }
 
+.welcome-message {
+  padding-top: 20%;
+  text-align: center;
+  font-size: 18px;
+  color: #333;
+}
+
 .result-container {
   /*内部组件左右布局*/
   display: flex;
@@ -159,7 +179,7 @@ const toggleGraph = () => {
 .graph-result-card {
   box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.08); /* 减弱阴影效果 */
   width: 50%;
-  height: 65vh;
+  height: 70vh;
   overflow: hidden;
 }
 
@@ -175,17 +195,9 @@ const toggleGraph = () => {
   height: 100%;
 }
 
-.graph-content {
-  width: 100%;
-  height: 100%;
-  background: #fff;
-  border-radius: 8px;
-}
-
 .response-content pre {
   white-space: pre-wrap; /* 保留换行同时自动换行 */
   word-wrap: break-word; /* 允许长单词换行 */
-  margin: 0;
   font-family: inherit;
   font-size: 14px;
   color: #606266;
