@@ -39,9 +39,10 @@
                 <p>请输入查询内容，点击查询按钮获取本地知识库推理结果。</p>
                 <small>本地知识库使用GraphRAG和deepseek建立</small>
               </div>
-              <div v-else>
-                <pre>{{ streamingText }}</pre>
-              </div>
+              <!--              <div v-else>-->
+              <!--                <pre>{{ streamingText }}</pre>-->
+              <!--              </div>-->
+              <div v-else v-html="renderedMarkdown"></div>
             </div>
           </el-card>
 
@@ -67,12 +68,34 @@
 <script setup>
 import {computed, onMounted, ref} from 'vue';
 import RelationGraph from 'relation-graph-vue3';
+import {marked} from 'marked';
 
 const welcome = ref(true);
 
 const query = ref('');
 const loading = ref(false);
-const responseData = '这是一段模拟的查询结果，用于展示流式输出的效果。我们将逐步输出这段文本，模拟后端流式传输的过程。';
+const responseData = 'SUCCESS: Local Search Response:\n' +
+    '### Analysis of ZHANG, YONG\'s Potential Aliases\n' +
+    '\n' +
+    'After reviewing the provided data, there is no evidence to suggest that **ZHANG, YONG** uses any aliases. The entity records consistently refer to this researcher under the same name across multiple affiliations and research contributions. Below is a detailed breakdown of the supporting evidence:\n' +
+    '\n' +
+    '#### Consistency in Name and Research Focus\n' +
+    '- The name **ZHANG, YONG** appears uniformly across all records, with no variations or alternative spellings noted [Data: Entities (5395)].\n' +
+    '- The researcher\'s work spans **computer vision, artificial intelligence, and image processing**, with affiliations at institutions such as the **University of Science and Technology of China (USTC)** and the **Chinese Academy of Sciences (ICT-CAS)** [Data: Entities (5395)].\n' +
+    '- A single **Researcher ID (ADH-3314-2022)** and email (**zhyd73@ustc.edu.cn**) are provided, further confirming a unified academic identity [Data: Entities (5395)].\n' +
+    '\n' +
+    '#### Lack of Contradictory Indicators\n' +
+    '- No conflicting ORCIDs, Researcher IDs, or email addresses are associated with this name in the dataset.\n' +
+    '- The research focus and institutional ties are logically connected, with no abrupt shifts that might suggest multiple identities.\n' +
+    '\n' +
+    '### Conclusion\n' +
+    'Based on the available data, **ZHANG, YONG** does not appear to have any aliases. The records present a coherent academic profile without discrepancies in naming or identity. If additional evidence emerges (e.g., alternate names or conflicting identifiers), this conclusion may need reevaluation.\n' +
+    '\n' +
+    'For reference, the analysis draws from the following data:\n' +
+    '[Data: Entities (5395); Sources (1916, 381)].\n' +
+    '\n' +
+    '---\n' +
+    '*Note: If you have additional context or records not included in the provided tables, please share them for further verification.*\n';
 const streamingText = ref('');
 
 const startQuery = () => {
@@ -80,27 +103,35 @@ const startQuery = () => {
   streamingText.value = '';
   loading.value = true;
   let index = 0;
+  let shouldScroll = true;
 
-  const outputInterval = 50 // 每个字符间隔时间（毫秒）
+  const outputInterval = 1 // 每个字符间隔时间（毫秒）
 
   const intervalId = setInterval(() => {
     if (index < responseData.length) {
       streamingText.value += responseData.slice(index, index + 1);
       index++;
-      // 自动滚动到底部
-      const container = document.querySelector('.response-content');
-      if (container) {
-        container.scrollTop = container.scrollHeight;
-      }
+      shouldScroll = true;
     } else {
       clearInterval(intervalId);
       loading.value = false;
+    }
+    // 自动滚动到底部
+    const container = document.querySelector('.response-content');
+    if (container && shouldScroll) {
+      container.scrollTop = container.scrollHeight;
+      shouldScroll = false;
     }
   }, outputInterval);
 
   // 使用requestAnimationFrame优化渲染性能
   requestAnimationFrame(intervalId);
 };
+
+// 将 Markdown 转换为 HTML
+const renderedMarkdown = computed(() => {
+  return marked(streamingText.value);
+});
 // //动态样式，当welcome为true时，response-content的子组件垂直居中
 // const responseContentStyle = computed(() => {
 //   if (welcome.value) {
@@ -189,10 +220,14 @@ onMounted(() => {
   align-items: center;
 }
 
-.response-graph,
+.response-graph{
+  line-height: 1.8;
+  height: 100%;
+}
 .response-content {
   line-height: 1.8;
   height: 100%;
+  overflow: auto;
 }
 
 .response-content pre {
@@ -203,9 +238,4 @@ onMounted(() => {
   color: #606266;
 }
 
-/*@media (max-width: 768px) {
-  .graph-content {
-    height: 400px;
-  }
-}*/
 </style>

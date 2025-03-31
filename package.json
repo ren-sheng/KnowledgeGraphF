@@ -20,7 +20,7 @@
     "mark": "^0.10.0",
     "markd": "^1.2.0",
     "markdown-it": "^14.1.0",
-    "marked": "^15.0.2",
+    "marked": "^15.0.7",
     "mathjax": "^3.2.2",
     "relation-graph-vue3": "^2.2.9",
     "sass-embedded": "^1.81.0",
