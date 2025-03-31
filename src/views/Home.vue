@@ -74,24 +74,24 @@ const containerWidth = computed(() => ({
             <el-icon><Share /></el-icon>
             <span slot="title"> 知识脉络</span>
           </el-menu-item>
-          <!-- <el-menu-item index="/algorithm">
-            <el-icon>
-              <Share/>
-            </el-icon>
-            <span slot="title"> 算法消歧</span>
-          </el-menu-item>
+<!--           <el-menu-item index="/algorithm">-->
+<!--            <el-icon>-->
+<!--              <Share/>-->
+<!--            </el-icon>-->
+<!--            <span slot="title"> 算法消歧</span>-->
+<!--          </el-menu-item>-->
           <el-menu-item index="/RegularDisambiguationID">
             <el-icon>
               <Checked/>
             </el-icon>
             <span slot="title"> ID规则消歧</span>
           </el-menu-item>
-          <el-menu-item index="/RegularDisambiguationCo">
-            <el-icon>
-              <List/>
-            </el-icon>
-            <span slot="title"> 合作者规则消歧</span>
-          </el-menu-item> -->
+<!--          <el-menu-item index="/RegularDisambiguationCo">-->
+<!--            <el-icon>-->
+<!--              <List/>-->
+<!--            </el-icon>-->
+<!--            <span slot="title"> 合作者规则消歧</span>-->
+<!--          </el-menu-item>-->
           <!-- 二级菜单 -->
           <!-- <el-submenu>
             <template>
@@ -170,13 +170,23 @@ const containerWidth = computed(() => ({
 
 .el-aside {
   transition: width .3s;
-  /*有阴影*/
   box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .el-header {
   box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
   display: flex;
   align-items: center;
+}
+
+.el-container {
+  padding: 0;
+  margin: 0;
 }
 </style>

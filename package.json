@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
+    "@klarr-agency/circum-icons-vue": "^2.0.1",
     "@vueuse/core": "^13.0.0",
     "axios": "^1.7.7",
+    "chart.js": "^4.4.8",
     "echart": "^0.1.3",
     "echarts": "^5.5.1",
     "element-plus": "^2.8.8",
@@ -24,6 +26,7 @@
     "sass-embedded": "^1.81.0",
     "scss": "^0.2.4",
     "vue": "^3.5.12",
+    "vue-chartjs": "^5.3.2",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {

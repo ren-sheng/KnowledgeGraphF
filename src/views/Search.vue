@@ -45,6 +45,10 @@
           <button class="search-button-small" @click="search">搜索</button>
         </div>
       </div>
+      <!-- 结果数量显示 -->
+     <div class="results-count">
+       找到 {{ totalResults }} 条结果
+    </div>
       <!-- 使用新的隔离组件 -->
       <div class="results-content">
         <IsolatedHtml :html="searchResults" />
@@ -62,21 +66,38 @@ const searchQuery = ref('')
 const languageOption = ref('all')
 const searchResults = ref('')
 const isSearched = ref(false)
+const totalResults = ref(0)  // 添加结果数量的响应式变量
 
 const search = async () => {
   console.log(`搜索: ${searchQuery.value}，语言选项: ${languageOption.value}`)
   try {
     let response = await searchPages(searchQuery.value)
-    // 修改链接格式，移除 #
+    
+    // 从返回的HTML中提取结果数量
+    const countMatch = response.data.match(/<span id="result-count"[^>]*>(\d+)<\/span>/);
+    if (countMatch) {
+      totalResults.value = parseInt(countMatch[1]);
+      console.log('找到结果数量:', totalResults.value);
+    } else {
+      console.log('未找到结果数量标记，HTML:', response.data.substring(0, 200));
+      // 如果找不到标记，尝试计算li元素数量
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = response.data;
+      const resultItems = tempDiv.querySelectorAll('li');
+      totalResults.value = resultItems.length;
+    }
+    
+    // 处理HTML
     const processedHtml = response.data.replace(
-        /<a href="\/expert\/(\d+)"/g,
-        '<a href="/expert/$1"'
+      /<a href="\/expert\/(\d+)"/g,
+      '<a href="/expert/$1"'
     )
     searchResults.value = processedHtml
     isSearched.value = true
   } catch (error) {
     console.error('搜索出错:', error)
     searchResults.value = '<div class="error">搜索出错，请稍后重试</div>'
+    totalResults.value = 0
   }
 }
 </script>
@@ -204,19 +225,22 @@ const search = async () => {
 
 .results-interface {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
   background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .top-search-bar {
-  position: sticky;
-  top: 0;
+  position: static;
   display: flex;
   align-items: center;
   padding: 10px 20px;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 100;
+  z-index: 1000;
+  flex-shrink: 0;
 }
 
 .logo-small {
@@ -250,12 +274,26 @@ const search = async () => {
   cursor: pointer;
 }
 
-.results-content {
-  padding: 20px;
-  /* max-width: 1200px;
-  margin: 0 auto;
+.results-count {
+  padding: 10px 20px;
+  color: #666;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  flex-shrink: 0;
+}
+
+.results-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 </style>

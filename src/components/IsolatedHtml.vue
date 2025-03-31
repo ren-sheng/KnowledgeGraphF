@@ -84,7 +84,7 @@ const updateContent = (html) => {
           }
         }
       }
-      
+
       // 处理摘要展开/收起
       if (e.target.classList.contains('toggle-abstract')) {
         const container = e.target.closest('.abstract-container')
