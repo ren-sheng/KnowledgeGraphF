@@ -13,6 +13,7 @@
     "@klarr-agency/circum-icons-vue": "^2.0.1",
     "@vueuse/core": "^13.0.0",
     "axios": "^1.7.7",
+    "chart.js": "^4.4.8",
     "echart": "^0.1.3",
     "echarts": "^5.5.1",
     "element-plus": "^2.8.8",

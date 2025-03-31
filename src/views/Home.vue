@@ -2,16 +2,7 @@
 import {computed, ref} from 'vue';
 
 import {useRoute} from 'vue-router';
-import {
-  Cpu,
-  Expand,
-  Fold, Grid,
-  Guide,
-  OfficeBuilding,
-  Search as SearchIcon,
-  Share,
-  User
-} from "@element-plus/icons-vue";
+import {Cpu, Expand, Fold, Guide, OfficeBuilding, Search as SearchIcon, Share, User} from "@element-plus/icons-vue";
 
 
 const route = useRoute();
@@ -80,35 +71,27 @@ const containerWidth = computed(() => ({
             <span slot="title"> 机构信息</span>
           </el-menu-item>
           <el-menu-item index="/knowledge">
-            <el-icon>
-              <Share/>
-            </el-icon>
+            <el-icon><Share /></el-icon>
             <span slot="title"> 知识脉络</span>
           </el-menu-item>
-          <el-menu-item index="/local_knowledge">
-            <el-icon>
-              <Grid/>
-            </el-icon>
-            <span slot="title"> 本地知识</span>
-          </el-menu-item>
-          <!-- <el-menu-item index="/algorithm">
-            <el-icon>
-              <Share/>
-            </el-icon>
-            <span slot="title"> 算法消歧</span>
-          </el-menu-item>
+<!--           <el-menu-item index="/algorithm">-->
+<!--            <el-icon>-->
+<!--              <Share/>-->
+<!--            </el-icon>-->
+<!--            <span slot="title"> 算法消歧</span>-->
+<!--          </el-menu-item>-->
           <el-menu-item index="/RegularDisambiguationID">
             <el-icon>
               <Checked/>
             </el-icon>
             <span slot="title"> ID规则消歧</span>
           </el-menu-item>
-          <el-menu-item index="/RegularDisambiguationCo">
-            <el-icon>
-              <List/>
-            </el-icon>
-            <span slot="title"> 合作者规则消歧</span>
-          </el-menu-item> -->
+<!--          <el-menu-item index="/RegularDisambiguationCo">-->
+<!--            <el-icon>-->
+<!--              <List/>-->
+<!--            </el-icon>-->
+<!--            <span slot="title"> 合作者规则消歧</span>-->
+<!--          </el-menu-item>-->
           <!-- 二级菜单 -->
           <!-- <el-submenu>
             <template>
@@ -187,13 +170,23 @@ const containerWidth = computed(() => ({
 
 .el-aside {
   transition: width .3s;
-  /*有阴影*/
   box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .el-header {
   box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
   display: flex;
   align-items: center;
+}
+
+.el-container {
+  padding: 0;
+  margin: 0;
 }
 </style>

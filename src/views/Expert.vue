@@ -113,48 +113,25 @@ import {OfficeBuilding, Share} from "@element-plus/icons-vue";
 import {computed, onMounted, ref} from 'vue';
 import RelationGraph from 'relation-graph-vue3';
 import {useRoute} from 'vue-router'
-import axios from 'axios';
+import { searchAuthors, getAuthorDetails, getAuthorPapers, getAuthorNetwork } from '@/api/author.js';
 
 const route = useRoute()
 const expertId = ref('')
 const hasSelectedExpert = ref(false);
 
-const papers = ref([
-  {
-    id: 1,
-    title: 'Exploring Plain Vision Transformer Backbones for Object Detection',
-    authors: ['Yanghao Li', 'Hanzi Mao', 'Ross B. Girshick', 'Kaiming He'],
-    year: 2022
-  },
-  {
-    id: 2,
-    title: 'Exploring Simple Siamese Representation Learning',
-    authors: ['Xinlei Chen', 'Kaiming He'],
-    year: 2021
-  },
-  {
-    id: 3,
-    title: 'An Empirical Study of Training Self-Supervised Visual Transformers',
-    authors: ['Xinlei Chen', 'Saining Xie', 'Kaiming He'],
-    year: 2021
-  },
-]);
+const papers = ref([]);
+const searchInput = ref(''); 
+const authorName = ref(''); 
 
-// 搜索框的值和显示的专家名称分开
-const searchInput = ref(''); // 新增：搜索框的输入值
-const authorName = ref(''); // 保持：显示的专家名称
-
-// 模拟数据
+// 专家详细信息
 const affiliation = ref('');
 const fields = ref([]);
 const paperCount = ref(0);
 const citationCount = ref(0);
 const kqi = ref(0);
 
-// 定义graphRef，这里不再有类型约束，直接初始化为null
+// 图谱相关
 const graphRef = ref(null);
-
-// 定义graphOptions，同样不再有类型约束
 const graphOptions = {
   debug: false,
   defaultNodeBorderWidth: 0,
@@ -172,30 +149,19 @@ const authorInitials = computed(() => {
   const name = authorName.value || '';
   const parts = name.split(' ');
   if (parts.length >= 2) {
-    // 如果有姓和名，取两个首字母
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   } else {
-    // 如果只有一个词，取前两个字母
     return name.substring(0, 2).toUpperCase();
   }
 });
 
-// 生成随机但固定的背景色
+// 生成头像背景色
 const getBackgroundColor = (initials) => {
   const colors = [
-    '#4285F4', // Google Blue
-    '#DB4437', // Google Red
-    '#F4B400', // Google Yellow
-    '#0F9D58', // Google Green
-    '#AB47BC', // Purple
-    '#00ACC1', // Cyan
-    '#FF7043', // Deep Orange
-    '#9E9E9E'  // Grey
+    '#4285F4', '#DB4437', '#F4B400', '#0F9D58', 
+    '#AB47BC', '#00ACC1', '#FF7043', '#9E9E9E'
   ];
-
-  // 使用首字母的 ASCII 码来选择颜色，确保同一个名字总是得到相同的颜色
   const charSum = initials.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  // return colors[charSum % colors.length];
   return '#409eff';
 };
 
@@ -214,261 +180,96 @@ const avatarStyle = computed(() => {
   };
 });
 
-// 补充完整的模拟数据
-const mockExperts = [
-  { id: '1', name: 'Kaiming He', affiliation: 'Facebook AI Research' },
-  { id: '2', name: 'Kai Li', affiliation: 'Princeton University' },
-  { id: '3', name: 'Kai Yu', affiliation: 'Shanghai Jiao Tong University' },
-  { id: '4', name: 'Karen Liu', affiliation: 'Stanford University' },
-  { id: '5', name: 'Kaichen Yang', affiliation: 'MIT' }
-];
+// 加载专家数据
+const loadExpertData = async (id) => {
+  try {
+    const [detailsResponse, papersResponse, networkResponse] = await Promise.all([
+      getAuthorDetails(id),
+      getAuthorPapers(id),
+      getAuthorNetwork(id)
+    ]);
 
-// 完整的模拟专家详细信息数据
-const mockExpertDetails = {
-  '1': {
-    name: 'Kaiming He',
-    affiliation: 'Facebook AI Research',
-    fields: ['Computer Vision', 'Deep Learning', 'Machine Learning'],
-    paperCount: 151,
-    citationCount: 233433,
-    kqi: 2.94,
-    papers: [
-      {
-        id: 1,
-        title: 'Exploring Plain Vision Transformer Backbones for Object Detection',
-        authors: ['Yanghao Li', 'Hanzi Mao', 'Ross B. Girshick', 'Kaiming He'],
-        year: 2022
-      },
-      {
-        id: 2,
-        title: 'Exploring Simple Siamese Representation Learning',
-        authors: ['Xinlei Chen', 'Kaiming He'],
-        year: 2021
-      },
-      {
-        id: 3,
-        title: 'An Empirical Study of Training Self-Supervised Visual Transformers',
-        authors: ['Xinlei Chen', 'Saining Xie', 'Kaiming He'],
-        year: 2021
-      }
-    ]
-  },
-  '2': {
-    name: 'Kai Li',
-    affiliation: 'Princeton University',
-    fields: ['Database Systems', 'Distributed Systems', 'Storage Systems'],
-    paperCount: 89,
-    citationCount: 45678,
-    kqi: 2.15,
-    papers: [
-      {
-        id: 1,
-        title: 'Distributed Database Systems: Principles and Practice',
-        authors: ['Kai Li', 'John Smith', 'Mary Johnson'],
-        year: 2021
-      },
-      {
-        id: 2,
-        title: 'Modern Storage Systems Architecture',
-        authors: ['Kai Li', 'David Brown'],
-        year: 2020
-      }
-    ]
-  },
-  '3': {
-    name: 'Kai Yu',
-    affiliation: 'Shanghai Jiao Tong University',
-    fields: ['Natural Language Processing', 'Speech Recognition', 'AI'],
-    paperCount: 76,
-    citationCount: 28900,
-    kqi: 1.98,
-    papers: [
-      {
-        id: 1,
-        title: 'Advanced Speech Recognition Systems',
-        authors: ['Kai Yu', 'Lisa Chen'],
-        year: 2022
-      }
-    ]
-  },
-  '4': {
-    name: 'Karen Liu',
-    affiliation: 'Stanford University',
-    fields: ['Computer Graphics', 'Animation', 'Robotics'],
-    paperCount: 65,
-    citationCount: 18500,
-    kqi: 1.85,
-    papers: [
-      {
-        id: 1,
-        title: 'Physics-based Character Animation',
-        authors: ['Karen Liu', 'Michael Brown'],
-        year: 2021
-      }
-    ]
-  },
-  '5': {
-    name: 'Kaichen Yang',
-    affiliation: 'MIT',
-    fields: ['Robotics', 'Control Systems', 'AI'],
-    paperCount: 45,
-    citationCount: 12300,
-    kqi: 1.76,
-    papers: [
-      {
-        id: 1,
-        title: 'Autonomous Robot Navigation Systems',
-        authors: ['Kaichen Yang', 'Robert Wilson'],
-        year: 2022
-      }
-    ]
+    // 设置专家详细信息
+    const details = detailsResponse.data;
+    authorName.value = details.name;
+    affiliation.value = details.affiliation;
+    fields.value = details.fields;
+    paperCount.value = details.paperCount;
+    citationCount.value = details.citationCount;
+    kqi.value = details.kqi;
+
+    // 设置论文列表
+    papers.value = papersResponse.data;
+
+    // 设置关系图数据
+    if (graphRef.value) {
+      const graphInstance = graphRef.value.getInstance();
+      await graphInstance.setJsonData(networkResponse.data);
+      await graphInstance.moveToCenter();
+      await graphInstance.setZoom(30);
+    }
+
+    hasSelectedExpert.value = true;
+  } catch (error) {
+    console.error('加载专家数据失败:', error);
   }
 };
 
-// 挂载后执行的函数
+// 组件挂载时加载数据
 onMounted(() => {
   expertId.value = route.params.id;
   if (expertId.value && expertId.value !== '0') {
-    hasSelectedExpert.value = true;
-    const expertDetails = mockExpertDetails[expertId.value];
-    if (expertDetails) {
-      authorName.value = expertDetails.name;
-      affiliation.value = expertDetails.affiliation;
-      fields.value = expertDetails.fields;
-      paperCount.value = expertDetails.paperCount;
-      citationCount.value = expertDetails.citationCount;
-      kqi.value = expertDetails.kqi;
-      papers.value = expertDetails.papers;
-    }
+    loadExpertData(expertId.value);
   }
-  showGraph();
 });
 
-// 展示图形的函数
-const showGraph = async () => {
-  const __graph_json_data = {
-    rootId: 'kaiming',
-    nodes: [
-      {
-        id: "kaiming",
-        text: "kaiming",
-        color: "orange",
-      },
-      {id: 'coauthor1', text: 'Co-author 1'},
-      {id: 'coauthor2', text: 'Co-author 2'},
-      {id: 'coauthor3', text: 'Co-author 3'},
-      {id: 'coauthor4', text: 'Co-author 4'},
-      {id: 'coauthor5', text: 'Co-author 5'},
-      {id: 'coauthor6', text: 'Co-author 6'},
-      {id: 'coauthor7', text: 'Co-author 7'},
-      {id: 'coauthor8', text: 'Co-author 8'},
-      {id: 'coauthor9', text: 'Co-author 9'},
-      {id: 'coauthor10', text: 'Co-author 10'},
-      {id: 'coauthor11', text: 'Co-author 11'},
-      {id: 'coauthor12', text: 'Co-author 12'},
-      {id: 'coauthor13', text: 'Co-author 13'},
-      {id: 'coauthor14', text: 'Co-author 14'},
-      {id: 'coauthor15', text: 'Co-author 15'},
-      {id: 'coauthor16', text: 'Co-author 16'},
-      {id: 'coauthor17', text: 'Co-author 17'},
-      {id: 'coauthor18', text: 'Co-author 18'},
-      {id: 'coauthor19', text: 'Co-author 19'},
-      {id: 'coauthor20', text: 'Co-author 20'}
-    ],
-    lines: [
-      {from: 'kaiming', to: 'coauthor1'},
-      {from: 'kaiming', to: 'coauthor2'},
-      {from: 'kaiming', to: 'coauthor3'},
-      {from: 'kaiming', to: 'coauthor4'},
-      {from: 'kaiming', to: 'coauthor5'},
-      {from: 'kaiming', to: 'coauthor6'},
-      {from: 'kaiming', to: 'coauthor7'},
-      {from: 'kaiming', to: 'coauthor8'},
-      {from: 'kaiming', to: 'coauthor9'},
-      {from: 'kaiming', to: 'coauthor10'},
-      {from: 'coauthor1', to: 'coauthor11'},
-      {from: 'coauthor2', to: 'coauthor12'},
-      {from: 'coauthor3', to: 'coauthor13'},
-      {from: 'coauthor4', to: 'coauthor14'},
-      {from: 'coauthor5', to: 'coauthor15'},
-      {from: 'coauthor6', to: 'coauthor16'},
-      {from: 'coauthor7', to: 'coauthor17'},
-      {from: 'coauthor8', to: 'coauthor18'},
-      {from: 'coauthor9', to: 'coauthor19'},
-      {from: 'coauthor10', to: 'coauthor20'},
-      {from: 'coauthor11', to: 'coauthor12'},
-      {from: 'coauthor13', to: 'coauthor14'},
-      {from: 'coauthor15', to: 'coauthor16'},
-      {from: 'coauthor17', to: 'coauthor18'},
-      {from: 'coauthor19', to: 'coauthor20'}
-    ]
-  };
-  const graphInstance = graphRef.value.getInstance();
-  if (graphInstance) {
-    await graphInstance.setJsonData(__graph_json_data);
-    await graphInstance.moveToCenter();
-    // await graphInstance.zoomToFit();
-    await graphInstance.setZoom(30);
-  }
-};
-
-// 节点点击事件处理函数
-const onNodeClick = (nodeObject, $event) => {
-  console.log('onNodeClick:', nodeObject);
-};
-
-// 连线点击事件处理函数
-const onLineClick = (lineObject, linkObject, $event) => {
-  console.log('onLineClick:', lineObject);
-};
-
+// 搜索建议
 const querySearch = async (queryString, cb) => {
   if (queryString.length >= 2) {
-    const results = mockExperts.filter(expert => 
-      expert.name.toLowerCase().includes(queryString.toLowerCase())
-    ).map(expert => ({
-      value: expert.name,
-      id: expert.id,
-      affiliation: expert.affiliation
-    }));
-    cb(results);
+    try {
+      const response = await searchAuthors(queryString);
+      const suggestions = response.data.map(author => ({
+        value: author.name,
+        id: author.id,
+        affiliation: author.affiliation
+      }));
+      cb(suggestions);
+    } catch (error) {
+      console.error('搜索作者失败:', error);
+      cb([]);
+    }
   } else {
     cb([]);
   }
 };
 
-const handleSelect = (item) => {
-  // 重置所有数据
+// 选择专家
+const handleSelect = async (item) => {
   resetData();
-  
-  // 设置新数据
-  const expertDetails = mockExpertDetails[item.id];
-  if (expertDetails) {
-    authorName.value = expertDetails.name;
-    affiliation.value = expertDetails.affiliation;
-    fields.value = expertDetails.fields;
-    paperCount.value = expertDetails.paperCount;
-    citationCount.value = expertDetails.citationCount;
-    kqi.value = expertDetails.kqi;
-    papers.value = expertDetails.papers;
-    hasSelectedExpert.value = true;
-
-    // 更新URL，但不重新加载页面
-    window.history.pushState({}, '', `/expert/${item.id}`);
-    
-    // 清空搜索框
-    searchInput.value = '';
-  }
+  await loadExpertData(item.id);
+  window.history.pushState({}, '', `/expert/${item.id}`);
+  searchInput.value = '';
 };
 
+// 重置数据
 const resetData = () => {
-  // 不重置 authorName，因为它是显示用的
+  authorName.value = '';
   affiliation.value = '';
   fields.value = [];
   paperCount.value = 0;
   citationCount.value = 0;
   kqi.value = 0;
   papers.value = [];
+};
+
+// 图谱节点点击事件
+const onNodeClick = (nodeObject, $event) => {
+  console.log('onNodeClick:', nodeObject);
+};
+
+// 图谱连线点击事件
+const onLineClick = (lineObject, linkObject, $event) => {
+  console.log('onLineClick:', lineObject);
 };
 </script>
 
