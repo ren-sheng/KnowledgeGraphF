@@ -74,7 +74,21 @@
                           :options="graphOptions"
                           @node-click="onNodeClick"
                           @line-click="onLineClick"
-                      />
+                      >
+                        <template #node="{node}">
+                          <div class="c-round" style="">
+                            <el-icon v-if="node.type==='orange'" :size="45" color='orange' ><Pointer  /></el-icon>
+                            <el-icon v-if="node.type==='#6fa8dc'" :size="45" color="#6fa8dc"><User  /></el-icon>
+                            <el-icon v-if="node.type==='#93c47d'" :size="45" color="#93c47d"><Search  /></el-icon>
+                            <el-icon v-if="node.type==='#b4a7d6'" :size="45" color="#b4a7d6"><Location  /></el-icon>
+                            <el-icon v-if="node.type==='#cccccc'" :size="45" color="#cccccc"><Aim  /></el-icon>
+<!--                            <el-icon v-if="node.color==='orange'" :size="45" ><Pointer  /></el-icon>-->
+<!--                            <el-icon v-if="node.color==='orange'" :size="45" ><Pointer  /></el-icon>-->
+<!--                            <el-icon v-if="node.color==='orange'" :size="45" ><Pointer  /></el-icon>-->
+                          </div>
+                          <div class="c-node-name" :style="{color:'#000000'}">{{node.text}}</div>
+                        </template>
+                      </RelationGraph>
                     </div>
                   </el-card>
                 </template>
@@ -131,7 +145,17 @@
 import {computed, nextTick, onMounted, ref, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import RelationGraph from 'relation-graph-vue3'
-import {Share} from '@element-plus/icons-vue'
+import {
+  Aim,
+  Location,
+  LocationFilled,
+  Pointer,
+  Search,
+  Share,
+  StarFilled,
+  User,
+  UserFilled
+} from '@element-plus/icons-vue'
 
 const router = useRouter()
 const selectedField = ref(null)
@@ -691,6 +715,39 @@ const fields = [
               researchers: '55,000+',
               institutions: '1,100+'
             }
+          },
+          {
+            id: '081203',
+            label: '知识图谱',
+            description: '研究如何迅速描述处理物理世界中的概念及其相互关系的技术。',
+            isLeaf: true,
+            stats: {
+              papers: '150,000+',
+              researchers: '50,000+',
+              institutions: '1,000+'
+            }
+          },
+          {
+            id: '081204',
+            label: '计算机软件与理论',
+            description: '研究现代计算机及其相关现象的技术。',
+            isLeaf: true,
+            stats: {
+              papers: '160,000+',
+              researchers: '57,000+',
+              institutions: '1,300+'
+            }
+          },
+          {
+            id: '081205',
+            label: '计算机图形学',
+            description: '研究如何利用计算机生成、处理和显示图像的学科。',
+            isLeaf: true,
+            stats: {
+              papers: '120,000+',
+              researchers: '47,000+',
+              institutions: '1,000+'
+            }
           }
         ]
       },
@@ -1100,10 +1157,10 @@ const isComputerScience = computed(() => {
 const graphRef = ref(null)
 const graphOptions = {
   debug: false,
-  defaultNodeBorderWidth: 2,
+  // defaultNodeBorderWidth: 2,
   allowSwitchLineShape: true,
   allowSwitchJunctionPoint: true,
-  defaultLineShape: 1,
+  defaultLineShape: 5,
   layout: {
     layoutName: 'force',
     force: {
@@ -1117,75 +1174,232 @@ const graphOptions = {
     }
   },
   defaultJunctionPoint: 'border',
-  defaultNodeWidth: 100,
-  defaultNodeHeight: 40,
+  defaultNodeWidth: 60,
+  defaultNodeHeight: 60,
   defaultNodeFontSize: 14,
-  defaultLineWidth: 2,
-  defaultNodeShape: 0
+  defaultLineWidth: 1,
+  defaultLineFontColor: 'rgba(0, 0, 0, 0.6)',
 }
 
 // 计算机视觉知识图谱数据
-const __graph_json_data = {
-  rootId: 'kaiming',
-  nodes: [
-    // 核心人物（橙色）
-    {id: 'kaiming', text: 'He Kaiming', color: 'orange'}, // ResNet/Mask R-CNN
-    {id: 'lecun', text: 'Yann LeCun', color: 'orange'},    // CNN先驱
-    {id: 'hinton', text: 'Geoffrey Hinton', color: 'orange'}, // AlexNet顾问
-    {id: 'feifei', text: 'Fei-Fei Li', color: 'orange'},   // ImageNet
+const __graph_json_data = [
+  {
+    id: "081201",
+    rootId: 'kaiming',
+    nodes: [
+      { id: 'kaiming', text: 'He Kaiming', type: 'orange', color: 'transparent' },
+      { id: 'lecun', text: 'Yann LeCun', type: 'orange', color: 'transparent' },
+      { id: 'hinton', text: 'Geoffrey Hinton', type: 'orange', color: 'transparent' },
+      { id: 'feifei', text: 'Fei - Fei Li', type: 'orange', color: 'transparent' },
+      { id: 'alexnet', text: 'AlexNet', type: '#6fa8dc', color: 'transparent' },
+      { id: 'resnet', text: 'ResNet', type: '#6fa8dc', color: 'transparent' },
+      { id: 'gan', text: 'GAN', type: '#6fa8dc', color: 'transparent' },
+      { id: 'vit', text: 'ViT', type: '#6fa8dc', color: 'transparent' },
+      { id: 'paper1', text: 'ImageNet Classification...', type: '#93c47d', color: 'transparent' },
+      { id: 'paper2', text: 'Deep Residual Learning...', type: '#93c47d', color: 'transparent' },
+      { id: 'imagenet', text: 'ImageNet', type: '#b4a7d6', color: 'transparent' },
+      { id: 'marr', text: 'Marr Theory', type: '#cccccc', color: 'transparent' },
+      { id: 'multimodal', text: 'Multimodal', type: '#cccccc', color: 'transparent' }
+    ],
+    lines: [
+      { from: 'kaiming', to: 'resnet' },
+      { from: 'lecun', to: 'alexnet' },
+      { from: 'hinton', to: 'alexnet' },
+      { from: 'feifei', to: 'imagenet' },
+      { from: 'alexnet', to: 'paper1' },
+      { from: 'resnet', to: 'paper2' },
+      { from: 'alexnet', to: 'resnet' },
+      { from: 'resnet', to: 'vit' },
+      { from: 'gan', to: 'multimodal' },
+      { from: 'marr', to: 'alexnet' }
+    ]
+  },
+  {
+    id: "081202",
+    rootId: "nlp_root",
+    nodes: [
+      { id: "mikolov", text: "Tomas Mikolov", type: "orange", color: 'transparent' },
+      { id: "devlin", text: "Jacob Devlin", type: "orange", color: 'transparent' },
+      { id: "vaswani", text: "Ashish Vaswani", type: "orange", color: 'transparent' },
+      { id: "word2vec", text: "Word2Vec", type: "#6fa8dc", color: 'transparent' },
+      { id: "bert", text: "BERT", type: "#6fa8dc", color: 'transparent' },
+      { id: "transformer", text: "Transformer", type: "#6fa8dc", color: 'transparent' },
+      { id: "lstm", text: "LSTM", type: "#6fa8dc", color: 'transparent' },
+      { id: "crf", text: "CRF", type: "#6fa8dc", color: 'transparent' },
+      { id: "paper_word2vec", text: "Efficient Estimation of Word Representations in Vector Space", type: "#93c47d", color: 'transparent' },
+      { id: "paper_bert", text: "BERT: Pre - training of Deep Bidirectional Transformers for Language Understanding", type: "#93c47d", color: 'transparent' },
+      { id: "paper_transformer", text: "Attention Is All You Need", type: "#93c47d", color: 'transparent' },
+      { id: "paper_lstm", text: "Long Short - Term Memory", type: "#93c47d", color: 'transparent' },
+      { id: "paper_crf", text: "Conditional Random Fields: Probabilistic Models for Segmenting and Labeling Sequence Data", type: "#93c47d", color: 'transparent' },
+      { id: "conll", text: "CoNLL", type: "#b4a7d6", color: 'transparent' },
+      { id: "glue", text: "GLUE", type: "#b4a7d6", color: 'transparent' },
+      { id: "nlp", text: "自然语言处理", type: "#cccccc", color: 'transparent' },
+      { id: "seq2seq", text: "序列到序列模型", type: "#cccccc", color: 'transparent' },
+      { id: "language_modeling", text: "语言建模", type: "#cccccc", color: 'transparent' }
+    ],
+    lines: [
+      { from: "mikolov", to: "word2vec" },
+      { from: "devlin", to: "bert" },
+      { from: "vaswani", to: "transformer" },
+      { from: "word2vec", to: "paper_word2vec" },
+      { from: "bert", to: "paper_bert" },
+      { from: "transformer", to: "paper_transformer" },
+      { from: "lstm", to: "paper_lstm" },
+      { from: "crf", to: "paper_crf" },
+      { from: "word2vec", to: "language_modeling" },
+      { from: "bert", to: "language_modeling" },
+      { from: "transformer", to: "seq2seq" },
+      { from: "lstm", to: "seq2seq" },
+      { from: "crf", to: "nlp" },
+      { from: "conll", to: "crf" },
+      { from: "glue", to: "bert" }
+    ]
+  },
+  {
+    id: "081203",
+    rootId: "knowledge_graph",
+    nodes: [
+      { id: "knowledge_graph", text: "知识图谱", type: "orange", color: 'transparent' },
+      { id: "knowledge_representation_learning", text: "知识表示学习", type: "#6fa8dc", color: 'transparent' },
+      { id: "knowledge_acquisition", text: "知识获取", type: "#6fa8dc", color: 'transparent' },
+      { id: "temporal_knowledge_graph", text: "时间知识图谱", type: "#6fa8dc", color: 'transparent' },
+      { id: "knowledge_aware_applications", text: "知识感知应用", type: "#6fa8dc", color: 'transparent' },
+      { id: "trans_e", text: "TransE", type: "#93c47d", color: 'transparent' },
+      { id: "trans_r", text: "TransR", type: "#93c47d", color: 'transparent' },
+      { id: "hole", text: "HolE", type: "#93c47d", color: 'transparent' },
+      { id: "wordnet", text: "WordNet", type: "#b4a7d6", color: 'transparent' },
+      { id: "dbpedia", text: "DBpedia", type: "#b4a7d6", color: 'transparent' },
+      { id: "complex_reasoning", text: "复杂推理", type: "#cccccc", color: 'transparent' },
+      { id: "unified_framework", text: "统一框架", type: "#cccccc", color: 'transparent' },
+      { id: "interpretability", text: "可解释性", type: "#cccccc", color: 'transparent' },
+      { id: "scalability", text: "可扩展性", type: "#cccccc", color: 'transparent' },
+      { id: "knowledge_aggregation", text: "知识聚合", type: "#cccccc", color: 'transparent' },
+      { id: "automatic_construction", text: "自动构建", type: "#cccccc", color: 'transparent' }
+    ],
+    lines: [
+      { from: "knowledge_graph", to: "knowledge_representation_learning" },
+      { from: "knowledge_graph", to: "knowledge_acquisition" },
+      { from: "knowledge_graph", to: "temporal_knowledge_graph" },
+      { from: "knowledge_graph", to: "knowledge_aware_applications" },
+      { from: "knowledge_representation_learning", to: "trans_e" },
+      { from: "knowledge_representation_learning", to: "trans_r" },
+      { from: "knowledge_representation_learning", to: "hole" },
+      { from: "knowledge_representation_learning", to: "complex_reasoning" },
+      { from: "knowledge_representation_learning", to: "interpretability" },
+      { from: "knowledge_acquisition", to: "scalability" },
+      { from: "knowledge_aware_applications", to: "knowledge_aggregation" },
+      { from: "wordnet", to: "knowledge_representation_learning" },
+      { from: "dbpedia", to: "knowledge_representation_learning" },
+      { from: "complex_reasoning", to: "unified_framework" },
+      { from: "interpretability", to: "unified_framework" },
+      { from: "scalability", to: "automatic_construction" },
+      { from: "knowledge_aggregation", to: "automatic_construction" }
+    ]
+  },
+  {
+    id: "081204",
+    rootId: "computer_software_theory",
+    nodes: [
+      { id: "dijkstra", text: "Edsger W. Dijkstra", type: "orange", color: 'transparent' },
+      { id: "knuth", text: "Donald E. Knuth", type: "orange", color: 'transparent' },
+      { id: "hoare", text: "Tony Hoare", type: "orange", color: 'transparent' },
+      { id: "algorithm_design", text: "算法设计", type: "#6fa8dc", color: 'transparent' },
+      { id: "data_structure", text: "数据结构", type: "#6fa8dc", color: 'transparent' },
+      { id: "compiler_construction", text: "编译器构造", type: "#6fa8dc", color: 'transparent' },
+      { id: "operating_system", text: "操作系统", type: "#6fa8dc", color: 'transparent' },
+      { id: "dijkstra_algorithm", text: "Dijkstra 算法", type: "#6fa8dc", color: 'transparent' },
+      { id: "quicksort", text: "快速排序算法", type: "#6fa8dc", color: 'transparent' },
+      { id: "paper_taocp", text: "The Art of Computer Programming", type: "#93c47d", color: 'transparent' },
+      { id: "paper_dijkstra", text: "A note on two problems in connexion with graphs", type: "#93c47d", color: 'transparent' },
+      { id: "paper_quicksort", text: "Quicksort", type: "#93c47d", color: 'transparent' },
+      { id: "computational_complexity", text: "计算复杂性理论", type: "#cccccc", color: 'transparent' },
+      { id: "formal_methods", text: "形式化方法", type: "#cccccc", color: 'transparent' },
+      { id: "computer_software_theory", text: "计算机软件与理论", type: "#cccccc", color: 'transparent' }
+    ],
+    lines: [
+      { from: "dijkstra", to: "dijkstra_algorithm" },
+      { from: "knuth", to: "algorithm_design" },
+      { from: "hoare", to: "quicksort" },
+      { from: "algorithm_design", to: "paper_taocp" },
+      { from: "dijkstra_algorithm", to: "paper_dijkstra" },
+      { from: "quicksort", to: "paper_quicksort" },
+      { from: "algorithm_design", to: "computational_complexity" },
+      { from: "data_structure", to: "computational_complexity" },
+      { from: "compiler_construction", to: "formal_methods" },
+      { from: "operating_system", to: "formal_methods" },
+      { from: "dijkstra_algorithm", to: "algorithm_design" },
+      { from: "quicksort", to: "algorithm_design" },
+      { from: "algorithm_design", to: "computer_software_theory" },
+      { from: "data_structure", to: "computer_software_theory" },
+      { from: "compiler_construction", to: "computer_software_theory" },
+      { from: "operating_system", to: "computer_software_theory" },
+      { from: "dijkstra_algorithm", to: "computer_software_theory" },
+      { from: "quicksort", to: "computer_software_theory" }
+    ]
+  },
+  {
+    id: "081205",
+    rootId: "computer_graphics",
+    nodes: [
+      { id: "sutherland", text: "Ivan Sutherland", type: "orange", color: 'transparent' },
+      { id: "blinn", text: "James F. Blinn", type: "orange", color: 'transparent' },
+      { id: "catmull", text: "Edwin Catmull", type: "orange", color: 'transparent' },
+      { id: "rasterization", text: "光栅化", type: "#6fa8dc", color: 'transparent' },
+      { id: "ray_tracing", text: "光线追踪", type: "#6fa8dc", color: 'transparent' },
+      { id: "3d_modeling", text: "三维建模", type: "#6fa8dc", color: 'transparent' },
+      { id: "animation", text: "动画制作", type: "#6fa8dc", color: 'transparent' },
+      { id: "blinn_phong", text: "Blinn - Phong 光照模型", type: "#6fa8dc", color: 'transparent' },
+      { id: "catmull_rom", text: "Catmull - Rom 样条曲线", type: "#6fa8dc", color: 'transparent' },
+      { id: "paper_raster", text: "A Rasterizing Algorithm for Drawing Curves and Curved Surfaces", type: "#93c47d", color: 'transparent' },
+      { id: "paper_ray", text: "An Improved Illumination Model for Shaded Display", type: "#93c47d", color: 'transparent' },
+      { id: "paper_blinn", text: "Models of light reflection for computer synthesized pictures", type: "#93c47d", color: 'transparent' },
+      { id: "paper_catmull", text: "A Subdivision Algorithm for Computer Display of Curved Surfaces", type: "#93c47d", color: 'transparent' },
+      { id: "shapenet", text: "ShapeNet", type: "#b4a7d6", color: 'transparent' },
+      { id: "mitsuba", text: "Mitsuba Renderer", type: "#b4a7d6", color: 'transparent' },
+      { id: "real_time_rendering", text: "实时渲染", type: "#cccccc", color: 'transparent' },
+      { id: "offline_rendering", text: "离线渲染", type: "#cccccc", color: 'transparent' },
+      { id: "computer_graphics", text: "计算机图形学", type: "#cccccc", color: 'transparent' }
+    ],
+    lines: [
+      { from: "sutherland", to: "rasterization" },
+      { from: "blinn", to: "blinn_phong" },
+      { from: "catmull", to: "catmull_rom" },
+      { from: "rasterization", to: "paper_raster" },
+      { from: "ray_tracing", to: "paper_ray" },
+      { from: "blinn_phong", to: "paper_blinn" },
+      { from: "catmull_rom", to: "paper_catmull" },
+      { from: "rasterization", to: "real_time_rendering" },
+      { from: "ray_tracing", to: "offline_rendering" },
+      { from: "3d_modeling", to: "computer_graphics" },
+      { from: "animation", to: "computer_graphics" },
+      { from: "blinn_phong", to: "computer_graphics" },
+      { from: "catmull_rom", to: "computer_graphics" },
+      { from: "shapenet", to: "3d_modeling" },
+      { from: "mitsuba", to: "ray_tracing" }
+    ]
+  }
+];
 
-    // 关键技术（蓝色）
-    {id: 'alexnet', text: 'AlexNet', color: '#6fa8dc'},
-    {id: 'resnet', text: 'ResNet', color: '#6fa8dc'},
-    {id: 'gan', text: 'GAN', color: '#6fa8dc'},
-    {id: 'vit', text: 'ViT', color: '#6fa8dc'},
-
-    // 经典论文（绿色）
-    {id: 'paper1', text: 'ImageNet Classification...', color: '#93c47d'}, // AlexNet论文
-    {id: 'paper2', text: 'Deep Residual Learning...', color: '#93c47d'}, // ResNet论文
-
-    // 数据集（紫色）
-    {id: 'imagenet', text: 'ImageNet', color: '#b4a7d6'},
-
-    // 理论/方向（灰色）
-    {id: 'marr', text: 'Marr Theory', color: '#cccccc'}, // David Marr理论
-    {id: 'multimodal', text: 'Multimodal', color: '#cccccc'} // 多模态方向
-  ],
-  lines: [
-    // 人物-技术关系
-    {from: 'kaiming', to: 'resnet'},
-    {from: 'lecun', to: 'alexnet'},
-    {from: 'hinton', to: 'alexnet'},
-    {from: 'feifei', to: 'imagenet'},
-
-    // 技术-论文关系
-    {from: 'alexnet', to: 'paper1'},
-    {from: 'resnet', to: 'paper2'},
-
-    // 技术衍生关系
-    {from: 'alexnet', to: 'resnet'},
-    {from: 'resnet', to: 'vit'},
-    {from: 'gan', to: 'multimodal'},
-
-    // 理论基础
-    {from: 'marr', to: 'alexnet'}
-  ]
-};
+//知识图谱知识图谱
+const kg =
 
 // 修改图谱初始化时机
 watch(() => selectedField.value, async (newField) => {
   if (newField && isComputerScience.value) {
     await nextTick()
-    showGraph()
+    showGraph(selectedField.value.id)
+    console.log(selectedField.value.id)
   }
 })
 
 // 修改showGraph函数
-const showGraph = async () => {
+const showGraph = async (id) => {
   try {
     const graphInstance = graphRef.value?.getInstance()
+    const targetObject = __graph_json_data.find(item => item.id === id);
+    console.log(targetObject)
     if (graphInstance) {
-      await graphInstance.setJsonData(__graph_json_data)
+      await graphInstance.setJsonData(targetObject)
 
       // 延迟执行布局调整
       setTimeout(async () => {
@@ -1418,5 +1632,26 @@ onMounted(() => {
 
 :deep(.relation-graph-line:hover) {
   stroke-width: 3px;
+}
+
+.c-round {
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  width: 60px;
+  height: 60px;
+
+  border-radius: 50%;
+
+  //background-color: #f5f5f5;
+
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+
+  font-size: 4px;
+  color: #333;
+
 }
 </style>
