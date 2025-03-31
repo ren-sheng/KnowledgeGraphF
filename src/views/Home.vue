@@ -2,7 +2,17 @@
 import {computed, ref} from 'vue';
 
 import {useRoute} from 'vue-router';
-import {Cpu, Expand, Fold, Guide, OfficeBuilding, Search as SearchIcon, Share, User} from "@element-plus/icons-vue";
+import {
+  Cpu,
+  Expand,
+  Fold,
+  Grid,
+  Guide,
+  OfficeBuilding,
+  Search as SearchIcon,
+  Share,
+  User
+} from "@element-plus/icons-vue";
 
 
 const route = useRoute();
@@ -80,6 +90,12 @@ const containerWidth = computed(() => ({
 <!--            </el-icon>-->
 <!--            <span slot="title"> 算法消歧</span>-->
 <!--          </el-menu-item>-->
+          <el-menu-item index="/local_knowledge">
+            <el-icon>
+              <Grid/>
+            </el-icon>
+            <span slot="title"> 本地知识</span>
+          </el-menu-item>
           <el-menu-item index="/RegularDisambiguationID">
             <el-icon>
               <Checked/>

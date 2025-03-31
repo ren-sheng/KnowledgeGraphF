@@ -13,6 +13,7 @@ import RegularDisambiguationID from "@/views/RegularDisambiguationID.vue";
 import IntroductionVue from "@/views/Introduction.vue"
 import AiVue from '../views/AiVue.vue';
 import KnowledgeVue from "@/views/Knowledge.vue";
+import LocalKnowledgeVue from "@/views/LocalKnowledge.vue";
 
 //定义路由关系
 const routes = [
@@ -60,6 +61,12 @@ const routes = [
                 name: 'knowledge',
                 meta: {name: "知识脉络"},
                 component: KnowledgeVue,
+            },
+            {
+                path: '/local_knowledge',
+                name: 'local_knowledge',
+                meta: {name: "本地知识"},
+                component: LocalKnowledgeVue,
             },
             //规则消歧id
             {
