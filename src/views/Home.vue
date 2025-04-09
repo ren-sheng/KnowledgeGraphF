@@ -100,7 +100,7 @@ const containerWidth = computed(() => ({
             <el-icon>
               <Checked/>
             </el-icon>
-            <span slot="title"> ID规则消歧</span>
+            <span slot="title"> 规则消歧</span>
           </el-menu-item>
 <!--          <el-menu-item index="/RegularDisambiguationCo">-->
 <!--            <el-icon>-->
