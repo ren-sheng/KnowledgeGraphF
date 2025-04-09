@@ -4,6 +4,12 @@
       <el-header><!-- 搜索栏 -->
         <div class="search-container">
           <div class="search-bar">
+            <el-select v-model="selectedSearchMethod" placeholder="选择搜索方法" class="search-select">
+              <el-option label="基本搜索" value="basic_search_streaming"></el-option>
+              <el-option label="漂移搜索" value="drift_search_streaming"></el-option>
+              <el-option label="本地搜索" value="local_search_streaming"></el-option>
+              <el-option label="全局搜索" value="global_search_streaming"></el-option>
+            </el-select>
             <el-input
                 v-model="query"
                 placeholder="输入查询内容"
@@ -39,9 +45,6 @@
                 <p>请输入查询内容，点击查询按钮获取本地知识库推理结果。</p>
                 <small>本地知识库使用GraphRAG和deepseek建立</small>
               </div>
-              <!--              <div v-else>-->
-              <!--                <pre>{{ streamingText }}</pre>-->
-              <!--              </div>-->
               <div v-else v-html="renderedMarkdown"></div>
             </div>
           </el-card>
@@ -71,78 +74,86 @@ import RelationGraph from 'relation-graph-vue3';
 import {marked} from 'marked';
 
 const welcome = ref(true);
-
 const query = ref('');
 const loading = ref(false);
-const responseData = 'SUCCESS: Local Search Response:\n' +
-    '### Analysis of ZHANG, YONG\'s Potential Aliases\n' +
-    '\n' +
-    'After reviewing the provided data, there is no evidence to suggest that **ZHANG, YONG** uses any aliases. The entity records consistently refer to this researcher under the same name across multiple affiliations and research contributions. Below is a detailed breakdown of the supporting evidence:\n' +
-    '\n' +
-    '#### Consistency in Name and Research Focus\n' +
-    '- The name **ZHANG, YONG** appears uniformly across all records, with no variations or alternative spellings noted [Data: Entities (5395)].\n' +
-    '- The researcher\'s work spans **computer vision, artificial intelligence, and image processing**, with affiliations at institutions such as the **University of Science and Technology of China (USTC)** and the **Chinese Academy of Sciences (ICT-CAS)** [Data: Entities (5395)].\n' +
-    '- A single **Researcher ID (ADH-3314-2022)** and email (**zhyd73@ustc.edu.cn**) are provided, further confirming a unified academic identity [Data: Entities (5395)].\n' +
-    '\n' +
-    '#### Lack of Contradictory Indicators\n' +
-    '- No conflicting ORCIDs, Researcher IDs, or email addresses are associated with this name in the dataset.\n' +
-    '- The research focus and institutional ties are logically connected, with no abrupt shifts that might suggest multiple identities.\n' +
-    '\n' +
-    '### Conclusion\n' +
-    'Based on the available data, **ZHANG, YONG** does not appear to have any aliases. The records present a coherent academic profile without discrepancies in naming or identity. If additional evidence emerges (e.g., alternate names or conflicting identifiers), this conclusion may need reevaluation.\n' +
-    '\n' +
-    'For reference, the analysis draws from the following data:\n' +
-    '[Data: Entities (5395); Sources (1916, 381)].\n' +
-    '\n' +
-    '---\n' +
-    '*Note: If you have additional context or records not included in the provided tables, please share them for further verification.*\n';
 const streamingText = ref('');
+const selectedSearchMethod = ref('local_search_streaming'); // 默认选择本地搜索
 
-const startQuery = () => {
+const startQuery = async () => {
   welcome.value = false;
   streamingText.value = '';
   loading.value = true;
-  let index = 0;
-  let shouldScroll = true;
 
-  const outputInterval = 1 // 每个字符间隔时间（毫秒）
-
-  const intervalId = setInterval(() => {
-    if (index < responseData.length) {
-      streamingText.value += responseData.slice(index, index + 1);
-      index++;
-      shouldScroll = true;
-    } else {
-      clearInterval(intervalId);
+  try {
+    if (!query.value) {
+      alert('请输入查询内容');
       loading.value = false;
+      return;
     }
-    // 自动滚动到底部
-    const container = document.querySelector('.response-content');
-    if (container && shouldScroll) {
-      container.scrollTop = container.scrollHeight;
-      shouldScroll = false;
+    //消息体
+    const message = {
+      community_level: 2,
+      dynamic_community_selection: false,
+      response_type: 'Multiple Paragraphs',
+      query: query.value,
+      callbacks: null
+    };
+    // 根据选择的搜索方法进行查询
+    let searchMethod = selectedSearchMethod.value;
+    if (searchMethod === 'basic_search_streaming') {
+      searchMethod = 'http://localhost:8000/basic_search_streaming';
+    } else if (searchMethod === 'drift_search_streaming') {
+      searchMethod = 'http://localhost:8000/drift_search_streaming';
+    } else if (searchMethod === 'global_search_streaming') {
+      searchMethod = 'http://localhost:8000/global_search_streaming';
+      message.community_level = 0;
+      message.dynamic_community_selection = true;
+    } else {
+      searchMethod = 'http://localhost:8000/local_search_streaming';
     }
-  }, outputInterval);
+    const response = await fetch(searchMethod, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
 
-  // 使用requestAnimationFrame优化渲染性能
-  requestAnimationFrame(intervalId);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let shouldScroll = true;
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) {
+        break;
+      }
+      const chunk = decoder.decode(value, {stream: true});
+      streamingText.value += chunk;
+
+      // 自动滚动到底部
+      const container = document.querySelector('.response-content');
+      if (container && shouldScroll) {
+        container.scrollTop = container.scrollHeight;
+        shouldScroll = false;
+      }
+    }
+  } catch (error) {
+    console.error('查询过程中出现错误:', error);
+    streamingText.value = `查询过程中出现错误: ${error.message}`;
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 将 Markdown 转换为 HTML
 const renderedMarkdown = computed(() => {
   return marked(streamingText.value);
 });
-// //动态样式，当welcome为true时，response-content的子组件垂直居中
-// const responseContentStyle = computed(() => {
-//   if (welcome.value) {
-//     return {
-//       display: 'flex',
-//       justifyContent: 'center',
-//       alignItems: 'center',
-//       height: '100%',
-//     }
-//   }
-// });
 
 // 知识图谱相关
 const graphRef$ = ref();
@@ -185,6 +196,10 @@ onMounted(() => {
   gap: 10px;
   max-width: 800px;
   margin: 0 auto;
+
+  .search-select {
+    width: 130px;
+  }
 }
 
 .search-input {
@@ -220,10 +235,11 @@ onMounted(() => {
   align-items: center;
 }
 
-.response-graph{
+.response-graph {
   line-height: 1.8;
   height: 100%;
 }
+
 .response-content {
   line-height: 1.8;
   height: 100%;
