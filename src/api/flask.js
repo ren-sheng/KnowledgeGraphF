@@ -105,15 +105,17 @@ export function getSimilarityResults() {
 
 // 获取实体数量比较结果
 export function getEntityCountComparison() {
-    request({
+    return request({
         url: '/get_entity_count_comparison',
         method: 'GET'
     })
         .then(response => {
-            console.log(response.data);
+            // console.log(response.data);
+            return response.data;
         })
         .catch(error => {
             console.error('获取实体数量比较结果时出错:', error);
+            return null
         });
 }
 

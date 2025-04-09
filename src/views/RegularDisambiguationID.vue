@@ -115,6 +115,13 @@
       </el-main>
       <!-- 右侧弹出的侧边栏用于显示相似度直方图 -->
       <el-drawer v-model="drawerVisible" direction="rtl" title="相似度直方图" size="50%" destroy-on-close>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2>消歧实体变化</h2>
+          <h1>作者实体变化</h1>
+          {{ subAupre }} 个 -> {{ subAunow }} 个
+          <h1>机构实体变化</h1>
+          {{ subInpre }} 个 -> {{ subInnow }} 个
+        </div>
         <div v-for="(chart, index) in charts" :key="index" style="margin-bottom: 20px;">
           <h3>{{ chart.step }}</h3>
           <Bar :data="chart.chartData" :options="chartOptions" v-if="chart.chartData.labels.length > 0" />
@@ -157,7 +164,7 @@
 <!--          插入md-->
           <el-popover
               class="box-item"
-              title="csv格式要求"
+              title=""
               content="Left Center prompts info"
               placement="left-start"
               :width="1000"
@@ -166,6 +173,7 @@
             <template #reference>
               <el-button class="mt-3 mb-3">csv格式要求</el-button>
             </template>
+            <h1>csv格式要求</h1>
             <el-table :data="tableData" stripe>
               <el-table-column prop="columnName" label="列名"></el-table-column>
               <el-table-column prop="dataType" label="数据类型"></el-table-column>
@@ -175,7 +183,7 @@
           </el-popover>
           <el-popover
               class="box-item"
-              title="阈值权值说明"
+              title=""
               content="Left Center prompts info"
               placement="left-start"
               :width="1000"
@@ -185,6 +193,7 @@
               <el-button class="mt-3 mb-3">阈值权值说明</el-button>
             </template>
             <div style="width: 1000px;">
+              <h1>阈值权值说明</h1>
               <p>阈值：用于判断两个节点是否相似的阈值，范围在0到1之间。</p>
               <p>权值：用于计算相似度的权重，范围在0到1之间，所有权重之和必须为1。</p>
               <p>名称权重：作者姓名的权重。</p>
@@ -195,7 +204,7 @@
           </el-popover>
           <el-popover
               class="box-item"
-              title="阈值权值算法"
+              title=""
               content="Left Center prompts info"
               placement="left-start"
               :width="1000"
@@ -258,7 +267,7 @@ import {
   LinearScale,
 } from 'chart.js';
 import {searchAuthor, transformData, transformData2} from '../api/Disambiguation.js';
-import { uploadFile, setThresholdsWeights } from '../api/flask.js';
+import {uploadFile, setThresholdsWeights, getEntityCountComparison} from '../api/flask.js';
 import RelationGraph, { RGJsonData, RGOptions, RGNode, RGLine, RGLink, RGUserEvent, RelationGraphComponent } from 'relation-graph-vue3';
 import { ElDrawer, ElMessage, ElLoading } from 'element-plus';
 import CircumIcon from "@klarr-agency/circum-icons-vue/src/CircumIcons.vue";
@@ -333,6 +342,11 @@ const chineseMap = {
 // 按 searchType 筛选相关
 const selectedSearchType = ref('');
 
+const subAupre=ref(0)
+const subAunow=ref(0)
+const subInpre=ref(0)
+const subInnow=ref(0)
+
 // 打开相似度直方图抽屉的方法
 const openDrawer = async () => {
   drawerVisible.value = true;
@@ -388,6 +402,16 @@ const uploadSelectedFile = async () => {
 
         jsonArray.value = processedData;
       }
+
+      //获取一下消除了多少实体
+      //  const tmp=null;
+       const tmp = await getEntityCountComparison();
+        subAupre.value=tmp.author.pre_disambiguation;
+        subAunow.value=tmp.author.post_disambiguation;
+        subInpre.value=tmp.institution.pre_disambiguation;
+        subInnow.value=tmp.institution.post_disambiguation;
+       // console.log(tmp.value);
+
     } catch (error) {
       console.error('文件上传失败:', error);
       ElMessage.error('文件上传失败，请稍后重试');
@@ -860,6 +884,16 @@ const doFilter = () => {
 
   font-size: 4px;
   color: #333;
+
+}
+
+h1 {
+  color: #4285f4;
+
+}
+
+h2 {
+  color: #4285f4;
 
 }
 </style>
