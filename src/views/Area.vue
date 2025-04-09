@@ -73,64 +73,37 @@
         <!-- 此处用于展示某一论文与之相关的引文网络 -->
 
         <div class="drag-container" ref="container">
-          <el-card style="width: 32.5%;height: 100%" always>
-            <!--            <transition name="panel">-->
-            <!--              <div>-->
-            <!--                  class="drag-item1"-->
-            <!--                  ref="leftPanel"-->
-            <!--                  :style="{ flexBasis: leftFlex }"-->
-
-            <!--              <el-card class="card" shadow="always">-->
+          <el-card class="left-panel" style="width: 35%;height: 100%" always>
             <el-table :data="nodes" style="width: 100%" :row-class-name="tableRowClassName"
                       @row-click="handleRowClick"
                       @row-mouseover="handleRowMouseover"
                       @row-mouseout="handleRowMouseout"
                       max-height="100vh">
-             >
-              <el-table-column class="thead" label="Origin Paper">
+              <el-table-column class="thead" label="搜索结果">
                 <template #default="scope">
                   <div>
-                    <strong>Title:</strong> {{ scope.row.TI }}<br>
-                    <strong>Authors:</strong> {{ scope.row.AU }}<br>
-                    <strong>Year:</strong> {{ scope.row.PY }}
+                    <div class="paper-title">{{ scope.row.TI }}</div>
+                    <div class="paper-authors">{{ scope.row.AU }}</div>
+                    <div class="paper-meta">{{ scope.row.PY }}</div>
+                    <div class="abstract-container" :class="{ expanded: scope.row.isExpanded }">
+                      <div class="abstract-content">{{ scope.row.AB }}</div>
+                      <button class="abstract-toggle" @click.stop="toggleAbstract(scope.row)">
+                        {{ scope.row.isExpanded ? '收起摘要' : '展开摘要' }}
+                      </button>
+                    </div>
                   </div>
                 </template>
               </el-table-column>
             </el-table>
-            <!--              </div>-->
-            <!--            </transition>-->
           </el-card>
 
           <!-- 此处用于展示论文知识图谱 -->
-          <el-card style="width: 32.5%;height: 100%" always>
-            <div style="width:500px;height:calc(100vh);">
+          <el-card class="graph-panel" style="width: 63%;height: 100%" always>
+            <div style="width:100%;height:calc(100vh);">
               <RelationGraph ref="graphRef" :options="graphOptions" @node-click="onNodeClick"
                              @line-click="onLineClick"/>
             </div>
           </el-card>
-
-          <!-- 此处表示某一图谱节点对应的论文的详细信息 -->
-          <el-card style="width: 32.5%;height: 100%" always>
-            <div
-                class="drag-item2"
-                ref="rightPanel"
-                :style="{ flexBasis: rightFlex }"
-            >
-              <div v-if="displayedNodeInfo">
-                <p class="TL-inf">{{ displayedNodeInfo.TI }}</p>
-                <p class="AU-inf">{{ displayedNodeInfo.AU }}</p>
-                <p class="PY-inf">
-                  {{ displayedNodeInfo.PY }}&nbsp&nbsp{{ displayedNodeInfo.SO }}
-                </p>
-                <p class="Z9-inf">{{ displayedNodeInfo.Z9 }}&nbspCitations</p>
-                <p class="AB-inf">{{ displayedNodeInfo.AB }}</p>
-              </div>
-              <div v-else>
-                <p>悬停或点击左侧节点以显示信息。</p>
-              </div>
-            </div>
-          </el-card>
-
         </div>
         <div id="graph-container"></div>
       </el-main>
@@ -149,18 +122,18 @@ const thesisInf = ref("论文名称");
 const searchQuery = ref("");
 const leftPanelVisible = ref(true);
 const rightPanelVisible = ref(true);
-const leftFlex = ref("28%");
-const middleFlex = ref("46%");
+const leftFlex = ref("35%");
+const middleFlex = ref("65%");
 const rightFlex = ref("28%");
 const nodes = ref([
   {
     id: 1,
     nodeCircle: 20,
     nodeOpacity: 1,
+    isExpanded: false,
     TI: "Symptom Resolution and Recurrence Outcomes after Partial Versus Total Laparoscopic Adrenalectomy: 13 years of Experience with Medium-Long Term Follow up",
     AU: "Knochel, AD; Jordan, AM",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -173,10 +146,10 @@ const nodes = ref([
     id: 2,
     nodeCircle: 5,
     nodeOpacity: 0.6,
+    isExpanded: false,
     TI: "Symptom Resolution and Recurrence Outcomes after Partial Versus Total Laparoscopic Adrenalectomy: 13 years of Experience with Medium-Long Term Follow up",
     AU: "Knochel, AD; Jordan, AM",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -189,10 +162,10 @@ const nodes = ref([
     id: 4,
     nodeCircle: 25,
     nodeOpacity: 0.8,
+    isExpanded: false,
     TI: "Introducing the POPVESL Score for Intrarenal Vascular Complications of Percutaneous Nephrolithotomy: Experience from a Single high-volume Referral Center",
     AU: "Knochel, AD; Jordan, AM",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -205,10 +178,10 @@ const nodes = ref([
     id: 5,
     nodeCircle: 15,
     nodeOpacity: 0.8,
+    isExpanded: false,
     TI: "Introducing the POPVESL Score for Intrarenal Vascular Complications of Percutaneous Nephrolithotomy: Experience from a Single high-volume Referral Center",
     AU: "Zhou, J; He, JZ; Zhu, F",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -221,10 +194,10 @@ const nodes = ref([
     id: 6,
     nodeCircle: 10,
     nodeOpacity: 0.6,
+    isExpanded: false,
     TI: "A Simplified Management of Transverse Testicular Ectopia in Patients with Persistent Mullerian Duct Syndrome",
     AU: "Zhou, J; He, JZ; Zhu, F",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -237,10 +210,10 @@ const nodes = ref([
     id: 7,
     nodeCircle: 10,
     nodeOpacity: 0.9,
+    isExpanded: false,
     TI: "A Simplified Management of Transverse Testicular Ectopia in Patients with Persistent Mullerian Duct Syndrome",
     AU: "Zhou, J; He, JZ; Zhu, F",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -254,10 +227,10 @@ const nodes = ref([
     id: 3,
     nodeCircle: 10,
     nodeOpacity: 0.7,
+    isExpanded: false,
     TI: "A Simplified Management of Transverse Testicular Ectopia in Patients with Persistent Mullerian Duct Syndrome",
     AU: "Zhou, J; He, JZ; Zhu, F",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -271,10 +244,10 @@ const nodes = ref([
     id: 10,
     nodeCircle: 20,
     nodeOpacity: 1,
+    isExpanded: false,
     TI: "Symptom Resolution and Recurrence Outcomes after Partial Versus Total Laparoscopic Adrenalectomy: 13 years of Experience with Medium-Long Term Follow up",
     AU: "Knochel, AD; Jordan, AM",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -286,10 +259,10 @@ const nodes = ref([
     id: 11,
     nodeCircle: 20,
     nodeOpacity: 1,
+    isExpanded: false,
     TI: "Symptom Resolution and Recurrence Outcomes after Partial Versus Total Laparoscopic Adrenalectomy: 13 years of Experience with Medium-Long Term Follow up",
     AU: "Knochel, AD; Jordan, AM",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -301,10 +274,10 @@ const nodes = ref([
     id: 12,
     nodeCircle: 20,
     nodeOpacity: 1,
+    isExpanded: false,
     TI: "Symptom Resolution and Recurrence Outcomes after Partial Versus Total Laparoscopic Adrenalectomy: 13 years of Experience with Medium-Long Term Follow up",
     AU: "Knochel, AD; Jordan, AM",
     PY: "2021",
-    SO: "ZYGOTE",
     Z9: "90",
     AB: "Mill defines utilitarianism as the combination of a theory of life and a moral claim: only pleasure and freedom from pain are desirable as ends, and the promotion of happiness is the sole goal of moral action. So defined, utilitarianism is open to ad hominem pessimistic objection: a theory of life which entails the impossibility of happiness fits poorly with a morality centered on its promotion. The first two challenges Mill confronts in Utilitarianism share this pessimistic structure. Interestingly, however, these challenges paint inverted pictures of the best utilitarian life: one suggests this life is satisfying but ignoble, the other that it is noble but unsatisfying. I explain Mill's treatment of both challenges as genuinely pessimistic interpretations of utilitarianism's theory of life. Read through the lens of Mill's engagement with pessimism, these challenges point to distinctive conceptions of dignity and satisfaction that play a significant role in Mill's ethics.",
     DT: "Journal Article",
@@ -409,11 +382,11 @@ const handleRowClick = (row) => {
 };
 
 const handleRowMouseover = (row) => {
-  hoverNodeInfo.value = row;
+  displayedNodeInfo.value = row;
 };
 
-const handleRowMouseout = (row) => {
-  hoverNodeInfo.value = null;
+const handleRowMouseout = () => {
+  displayedNodeInfo.value = null;
 };
 
 // const createGraph = () => {
@@ -594,18 +567,43 @@ const showGraph = async () => {
 };
 
 // 节点点击事件处理函数
-const onNodeClick = (nodeObject, $event) => {
-  console.log('onNodeClick:', nodeObject);
+const onNodeClick = (node) => {
+  console.log('onNodeClick:', node);
 };
 
 // 连线点击事件处理函数
-const onLineClick = (lineObject, linkObject, $event) => {
-  console.log('onLineClick:', lineObject);
+const onLineClick = (line) => {
+  console.log('onLineClick:', line);
+};
+
+const toggleAbstract = (row) => {
+  row.isExpanded = !row.isExpanded;
 };
 
 </script>
 
 <style scoped>
+.container1 {
+  height: 87vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.drag-container {
+  display: flex;
+  gap: 20px;
+  height: calc(100vh - 60px);
+  padding: 10px;
+}
+
+.left-panel, .graph-panel {
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.graph-panel {
+  flex-grow: 1;
+}
 
 .card {
   width: 600px;
@@ -830,5 +828,63 @@ const onLineClick = (lineObject, linkObject, $event) => {
 
 .hover-row {
   background-color: #f0f0f0; /* 悬停时的背景颜色 */
+}
+
+.paper-title {
+  font-size: 18px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  color: black;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.paper-title:hover {
+  text-decoration: underline;
+}
+
+.paper-authors {
+  font-size: 13px;
+  color: #545454;
+  margin: 4px 0;
+}
+
+.paper-meta {
+  color: #666;
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.abstract-container {
+  position: relative;
+  margin-top: 8px;
+}
+
+.abstract-content {
+  font-size: 14px;
+  color: #545454;
+  line-height: 1.6;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-out;
+}
+
+.abstract-container.expanded .abstract-content {
+  max-height: 1000px;
+  margin-bottom: 8px;
+}
+
+.abstract-toggle {
+  color: #1a73e8;
+  cursor: pointer;
+  font-size: 14px;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.abstract-toggle:hover {
+  text-decoration: underline;
 }
 </style>
