@@ -4,6 +4,8 @@
       <el-main>
         <!-- 搜索区域 -->
         <el-form :model="form" label-width="0px">
+          <h2>个体相似程度</h2>
+          <h1>输入两个作者/机构的名字，点击搜索按钮，以图谱形式显现出来二者之间的关系</h1>
           <el-form-item>
             <el-input v-model="form.searchText1" placeholder="请输入搜索内容" style="width: 350px;margin-right: 20px">
             </el-input>
@@ -170,6 +172,58 @@
               <el-table-column prop="description" label="描述"></el-table-column>
               <el-table-column prop="example" label="示例"></el-table-column>
             </el-table>
+          </el-popover>
+          <el-popover
+              class="box-item"
+              title="阈值权值说明"
+              content="Left Center prompts info"
+              placement="left-start"
+              :width="1000"
+              trigger="click"
+          >
+            <template #reference>
+              <el-button class="mt-3 mb-3">阈值权值说明</el-button>
+            </template>
+            <div style="width: 1000px;">
+              <p>阈值：用于判断两个节点是否相似的阈值，范围在0到1之间。</p>
+              <p>权值：用于计算相似度的权重，范围在0到1之间，所有权重之和必须为1。</p>
+              <p>名称权重：作者姓名的权重。</p>
+              <p>SC 权重：研究方向的权重。</p>
+              <p>合作权重：合作论文的权重。</p>
+              <p>机构权重：机构名称的权重。</p>
+            </div>
+          </el-popover>
+          <el-popover
+              class="box-item"
+              title="阈值权值算法"
+              content="Left Center prompts info"
+              placement="left-start"
+              :width="1000"
+              trigger="click"
+          >
+            <template #reference>
+              <el-button class="mt-3 mb-3">阈值权值算法</el-button>
+            </template>
+            <div>
+              <h1>机构与作者处理算法流程</h1>
+              <h2>机构处理流程</h2>
+              <p>当处理CSV文件中的机构名称时，首先判断该机构名称是否已在 <code>seen_institutions</code> 集合中出现过。若未出现，将其添加到集合，并使机构计数加1。</p>
+              <p>尝试从数据库 <code>institutionname</code> 表中查询该机构名称对应的 <code>institution_name_id</code>。若能查到，继续查询对应的 <code>institution_id</code>；若未查到，插入该机构名称到 <code>institutionname</code> 表，并获取新插入记录的 <code>institution_name_id</code>。</p>
+              <p>计算新机构名称与数据库中已存在机构名称的编辑距离相似度（使用 <code>edit_distance_similarity_institution</code> 函数），相关结果存入 <code>results</code> 和 <code>similarity_results</code>。若相似度大于 <strong>机构阈值</strong>（当前设置及可调整的值），则将新机构记录合并到相似的已有机构记录。若未找到相似且满足阈值条件的机构，则为新机构生成新的 <code>institution_id</code> 并插入到 <code>institution</code> 表。</p>
+              <h2>作者处理流程</h2>
+              <p>遍历CSV文件每行中的作者，判断作者名字是否在 <code>seen_authors</code> 集合中出现过。若未出现，将其添加到集合，并使作者计数加1。</p>
+              <p>尝试从数据库 <code>name</code> 表中查询该作者名字对应的 <code>name_id</code>。若未查到，插入作者名字到 <code>name</code> 表，并获取新插入记录的 <code>name_id</code>。</p>
+              <p>根据作者的Researcher Ids（RI）或ORCIDs（OI），尝试在数据库 <code>author</code> 表中查找对应的 <code>author_id</code>。若找到，进行合并操作并更新相关标识（RI或OI）。</p>
+              <p>若无法通过RI或OI合并：</p>
+              <ul>
+                <li>计算作者名字与数据库中已存在名字的编辑距离相似度（<code>edit_distance_similarity</code> 函数）。</li>
+                <li>获取与已有作者相关的专业领域信息，计算专业领域加权Jaccard相似度（<code>weighted_jaccard_similarity</code> 函数）。</li>
+                <li>计算当前作者的合作者与已有作者的合作者之间的Jaccard相似度（<code>jaccard_similarity</code> 函数）。</li>
+                <li>若存在机构信息，计算当前作者与已有作者关联机构的Jaccard相似度（<code>jaccard_similarity</code> 函数）。</li>
+                <li>根据 <strong>名称权重</strong>、<strong>SC权重</strong>、<strong>合作权重</strong>、<strong>机构权重</strong>，计算作者综合相似度。若综合相似度大于 <strong>作者阈值</strong>，则将当前作者记录合并到相似的已有作者记录。</li>
+              </ul>
+              <p>若未找到相似且满足阈值条件的作者记录，则插入新的作者记录到 <code>author</code> 表，并在相关表（如 <code>ownership</code>、<code>involvement</code>、<code>collaboration</code>、<code>authorship</code>、<code>affiliation</code>）中插入关联记录。</p>
+            </div>
           </el-popover>
 
         </div>

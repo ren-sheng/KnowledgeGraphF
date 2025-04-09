@@ -72,7 +72,7 @@ const routes = [
             {
                 path: '/RegularDisambiguationID',
                 name: 'RDID',
-                meta: {name: "作者ID规则消歧"},
+                meta: {name: "规则消歧"},
                 component: RegularDisambiguationID
             },
             //规则消歧合作者
