@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { searchPages } from '@/api/pages.js'
 import IsolatedHtml from '@/components/IsolatedHtml.vue'
 
@@ -87,19 +87,48 @@ const search = async () => {
       totalResults.value = resultItems.length;
     }
     
-    // 处理HTML
-    const processedHtml = response.data.replace(
-      /<a href="\/expert\/(\d+)"/g,
-      '<a href="/expert/$1"'
-    )
-    searchResults.value = processedHtml
-    isSearched.value = true
+    // 处理HTML中的链接和摘要
+    let processedHtml = response.data
+      // 处理专家链接
+      .replace(/<a href="\/expert\/(\d+)"/g, '<a href="#" data-expert-id="$1"')
+      // 处理摘要容器
+      .replace(/<div class="abstract">/g, '<div class="abstract-container"><div class="abstract-content">');
+
+    // 关闭摘要内容div
+    processedHtml = processedHtml.replace(/<\/div>(?=\s*<\/li>)/g, '</div></div>');
+    
+    searchResults.value = processedHtml;
+    isSearched.value = true;
+
+    // 在下一个 tick 中添加事件监听器
+    nextTick(() => {
+      // 移除旧的事件监听器
+      const oldLinks = document.querySelectorAll('a[data-expert-id]');
+      oldLinks.forEach(link => {
+        link.removeEventListener('click', handleExpertClick);
+      });
+
+      // 添加新的事件监听器
+      const links = document.querySelectorAll('a[data-expert-id]');
+      links.forEach(link => {
+        link.addEventListener('click', handleExpertClick);
+      });
+    });
   } catch (error) {
     console.error('搜索出错:', error)
     searchResults.value = '<div class="error">搜索出错，请稍后重试</div>'
     totalResults.value = 0
   }
 }
+
+// 处理专家链接点击事件
+const handleExpertClick = (event) => {
+  event.preventDefault();
+  const expertId = event.target.getAttribute('data-expert-id');
+  if (expertId) {
+    window.location.href = `/expert/${expertId}`;
+  }
+};
 </script>
 
 <style scoped>
@@ -107,193 +136,250 @@ const search = async () => {
   font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
+  height: 87vh; /* 改用固定高度而不是最小高度 */
+  background-color: #fff;
+  overflow: hidden; /* 防止出现滚动条 */
+}
+
+.search-interface {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  margin-top: 0; /* 移除上边距 */
-}
-
-.header {
-  display: flex;
   justify-content: flex-start;
-  width: 100%;
-  padding: 20px 0 0 20px; /* 增加左侧padding */
-  box-sizing: border-box;
-  position: absolute; /* 使用绝对定位 */
-  left: 0; /* 靠左对齐 */
-  top: 0;
-}
-
-.menu {
-  display: flex;
-  flex-direction: column; /* 改为垂直排列 */
-  gap: 20px; /* 调整间距 */
-  margin-right: 0;
-  font-size: 16px;
-}
-
-.menu a {
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.menu a:hover {
-  color: #4285f4 !important;
-}
-
-.login {
-  cursor: pointer;
-  margin-left: auto; /* 将登录按钮推到右边 */
+  padding-top: 15vh; /* 减小顶部间距 */
 }
 
 .search-container {
-  margin: 100px auto 0; /* 修改上边距，使用auto实现水平居中 */
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
 }
 
 .logo {
   font-size: 40px;
   color: #4285f4;
-  margin-bottom: 20px;
-  text-align: center; /* 添加文字居中 */
-  width: 100%; /* 确保占满容器宽度 */
+  margin-bottom: 40px;
 }
 
 .search-bar {
   display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .search-input {
   width: 600px;
-  padding: 10px;
+  padding: 12px 16px;
   font-size: 16px;
-  border: 1px solid #ccc;
-  border-right: none; /* Remove border from the right side */
-  border-radius: 5px 0 0 5px; /* Round the left side */
+  border: 1px solid #dfe1e5;
+  border-right: none;
+  border-radius: 24px 0 0 24px;
+  outline: none;
+  transition: box-shadow 0.3s;
+}
+
+.search-input:focus {
+  box-shadow: 0 1px 6px rgba(32,33,36,0.28);
 }
 
 .search-button {
-  padding: 10px 20px;
+  padding: 0 24px;
   font-size: 16px;
   background-color: #4285f4;
   color: white;
   border: 1px solid #4285f4;
-  border-left: none; /* Remove border from the left side */
-  border-radius: 0 5px 5px 0; /* Round the right side */
+  border-radius: 0 24px 24px 0;
   cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-button:hover {
+  background-color: #3367d6;
 }
 
 .options {
-  margin-bottom: 20px;
-  text-align: center; /* 添加文字居中 */
-  width: 100%; /* 确保占满容器宽度 */
+  margin: 20px 0;
   display: flex;
-  justify-content: center; /* 水平居中 */
-  gap: 20px; /* 选项之间的间距 */
+  justify-content: center;
+  gap: 24px;
 }
 
+.options label {
+  color: #666;
+  cursor: pointer;
+}
+
+/* 调整页脚位置 */
 .footer {
   margin-top: auto;
-  width: 100%;
+  padding-bottom: 45vh; /* 减小底部间距 */
   text-align: center;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.slogan {
   color: #4285f4;
   font-size: 18px;
 }
 
-.search-results {
-  width: 800px;
-  margin-top: 20px;
-  padding: 20px;
-  background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-:deep(.search-results) {
-  font-family: Arial, sans-serif;
-}
-
-:deep(.error) {
-  color: red;
-  text-align: center;
-  padding: 20px;
-}
-
+/* 搜索结果界面样式 */
 .results-interface {
-  width: 100%;
-  height: 100vh;
-  background-color: #f8f9fa;
+  height: 100vh; /* 改用固定高度 */
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  background-color: #fff;
+  overflow: hidden; /* 防止整体出现滚动条 */
 }
 
 .top-search-bar {
-  position: static;
   display: flex;
   align-items: center;
-  padding: 10px 20px;
+  padding: 12px 24px;
   background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  flex-shrink: 0;
+  border-bottom: 1px solid #dfe1e5;
 }
 
 .logo-small {
   font-size: 20px;
   color: #4285f4;
-  margin-right: 20px;
+  margin-right: 40px;
+  white-space: nowrap;
 }
 
 .search-bar-small {
   display: flex;
-  align-items: center;
+  flex: 1;
+  max-width: 600px;
 }
 
 .search-input-small {
-  width: 400px;
-  padding: 8px;
+  flex: 1;
+  padding: 8px 16px;
   font-size: 14px;
-  border: 1px solid #ccc;
+  border: 1px solid #dfe1e5;
   border-right: none;
-  border-radius: 4px 0 0 4px;
+  border-radius: 24px 0 0 24px;
+  outline: none;
 }
 
 .search-button-small {
-  padding: 8px 16px;
+  padding: 0 20px;
   font-size: 14px;
   background-color: #4285f4;
   color: white;
   border: 1px solid #4285f4;
-  border-left: none;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 24px 24px 0;
   cursor: pointer;
 }
 
 .results-count {
-  padding: 10px 20px;
-  color: #666;
+  padding: 12px 24px;
+  color: #70757a;
   font-size: 14px;
-  border-bottom: 1px solid #eee;
-  background-color: white;
-  flex-shrink: 0;
+  border-bottom: 1px solid #dfe1e5;
 }
 
 .results-content {
   flex: 1;
+  padding: 20px 0; /* 移除左右内边距，只保留上下内边距 */
   overflow-y: auto;
-  padding: 20px;
+  background-color: #fff;
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.results-content :deep(.search-results) {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 150px; /* 使用更大的左右边距来控制内容宽度 */
+}
+
+.results-content :deep(.search-results li) {
+  width: 100%;
+  margin-bottom: 25px; /* 增加结果之间的间距 */
+  padding: 0; /* 移除内边距 */
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.results-content :deep(.search-results li:hover) {
+  box-shadow: none;
+}
+
+.results-content :deep(.search-results h3) {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #1a0dab;
+}
+
+.results-content :deep(.search-results .abstract) {
+  margin-top: 10px;
+  color: #4d5156;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.results-content :deep(.search-results .abstract-container) {
+  margin-top: 10px;
+}
+
+.results-content :deep(.search-results .abstract-content) {
+  display: none;
+  padding: 10px;
   background-color: #f8f9fa;
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  /* Hide scrollbar for IE, Edge and Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.results-content :deep(.search-results .abstract-container.expanded .abstract-content) {
+  display: block;
+}
+
+.results-content :deep(.search-results .abstract-toggle) {
+  color: #1a73e8;
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;
+}
+
+.results-content :deep(.search-results .abstract-toggle:hover) {
+  text-decoration: underline;
+}
+
+.results-content :deep(.search-results .authors) {
+  color: #006621;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.results-content :deep(.search-results .source) {
+  color: #006621;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.results-content :deep(.search-results .year) {
+  color: #666;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.results-content :deep(.search-results .citations) {
+  color: #666;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+/* 隐藏滚动条但保持功能 */
+.results-content {
   scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.results-content::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
 }
 </style>

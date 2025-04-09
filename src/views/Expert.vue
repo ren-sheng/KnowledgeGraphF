@@ -88,8 +88,8 @@
               <el-button style="float: right; padding: 3px 0" type="text" @click="handleSave">Save</el-button>
             </div>
             <div>
-              <p><strong>Authors:</strong> {{ paper.authors.join(', ') }}</p>
-              <p><strong>Year:</strong> {{ paper.year }}</p>
+              <p><strong>Authors:</strong> {{ paper.authors?.join(', ') || 'No authors listed' }}</p>
+              <p><strong>Year:</strong> {{ paper.year || 'N/A' }}</p>
             </div>
           </el-card>
           <br>
@@ -190,19 +190,23 @@ const loadExpertData = async (id) => {
     ]);
 
     // 设置专家详细信息
-    const details = detailsResponse.data;
-    authorName.value = details.name;
-    affiliation.value = details.affiliation;
-    fields.value = details.fields;
-    paperCount.value = details.paperCount;
-    citationCount.value = details.citationCount;
-    kqi.value = details.kqi;
+    const details = detailsResponse?.data || {};
+    authorName.value = details.name || '';
+    affiliation.value = details.affiliation || '';
+    fields.value = details.fields || [];
+    paperCount.value = details.paperCount || 0;
+    citationCount.value = details.citationCount || 0;
+    kqi.value = details.kqi || 0;
 
     // 设置论文列表
-    papers.value = papersResponse.data;
+    papers.value = papersResponse?.data?.map(paper => ({
+      ...paper,
+      authors: paper.authors || [],
+      year: paper.year || 'N/A'
+    })) || [];
 
     // 设置关系图数据
-    if (graphRef.value) {
+    if (graphRef.value && networkResponse?.data) {
       const graphInstance = graphRef.value.getInstance();
       await graphInstance.setJsonData(networkResponse.data);
       await graphInstance.moveToCenter();
@@ -212,6 +216,8 @@ const loadExpertData = async (id) => {
     hasSelectedExpert.value = true;
   } catch (error) {
     console.error('加载专家数据失败:', error);
+    // 发生错误时重置数据
+    resetData();
   }
 };
 
